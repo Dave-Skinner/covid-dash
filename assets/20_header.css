@@ -1,0 +1,73 @@
+.header {
+    grid-column: 2 / span 12;
+
+    position: relative;
+    padding: 25px 0;
+
+    font-size: 28px;
+    text-align: right;
+}
+
+.header__logo {
+    width: 161px;
+    height: 70px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: 30px;
+
+    background-image: url(data:image/png;base64,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);
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+
+    transform: translateY(-50%);
+}
+
+.header__list {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 80px 0 0;
+}
+
+.header__item {
+    display: inline-block;
+}
+
+.header__item + .header__item {
+    margin-left: 30px;
+}
+
+.header__link {
+    text-decoration: none;
+}
+
+.header__item.is-active .header__link {
+    border-bottom: 2px solid currentColor;
+}
+
+.header__button {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 55px 0 0;
+    padding: 10px 15px;
+
+    border: 1px solid black;
+    border-radius: 3px;
+
+    text-decoration: none;
+}
+
+.header__profile-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 60px;
+    height: 60px;
+
+    background: rgb(177, 64, 229);
+
+    border-radius: 50%;
+
+    font-size: 30px;
+    line-height: 60px;
+    text-align: center;
+}

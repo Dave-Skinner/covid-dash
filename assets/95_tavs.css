@@ -1,0 +1,293 @@
+.tavs {
+    margin-top: 80px;
+}
+
+
+.tavs__batting-stats {
+    grid-column: 1 / span 2;
+    margin-left: 20px;
+}
+
+.tavs__bowling-stats {
+    grid-column: 1 / span 2;
+
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.bowling-title{
+    background: rgb(242, 242, 242)
+}
+
+.tavs__batting-mod-graph {
+    grid-column: 9 / span 6;
+
+    margin-top: 0px;
+    margin-left: 0;
+}
+
+.tavs__bowling-mod-graph {
+    grid-column: 9 / span 6;
+
+    margin-top: 20px;
+    margin-left: 0;
+}
+
+.tavs__batting-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 3 / span 8;
+
+    margin-right: -50px;
+}
+
+.tavs__bowling-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 3 / span 6;
+
+    margin-right: -50px;
+}
+
+
+
+.bowling-grid{
+    background: rgb(242, 242, 242);
+
+    margin-top: -20px;
+    margin-bottom: 20px;
+}
+
+
+.tavs-unit {
+    display: block;
+
+    text-decoration: none;
+}
+
+.tavs-grid__unit {
+    grid-column: 2 / span 5;
+    padding-bottom: 15px;
+}
+
+.tavs-grid__unit--half {
+    grid-column: span 6;
+}
+
+
+.tavs-stat-title{    
+    font-family: 'Poppins', sans-serif;
+
+    text-align:center;
+}
+
+.hidden-grid{
+    display: none;
+}
+
+.shown-grid{
+    display: block;
+}
+
+
+
+
+
+
+
+
+
+
+.tavs--no-margin-top {
+    margin-top: 0;
+}
+
+.tavs.is-visible {
+    display: grid;
+}
+
+.tavs__heading {
+    grid-column: 1 / span 12;
+
+    margin: 0;
+
+    font-weight: 600;
+    font-size: 48px;
+}
+
+.tavs__nav {
+
+}
+
+.tavs__filter {
+    grid-column: 1 / span 12;
+
+    padding-top: 40px;
+
+    font-size: 20px;
+}
+
+.tavs__filter__form {
+    display: inline-block;
+    width: 52%;
+}
+
+.tavs__filter__title {
+    margin: 0 0 10px 0;
+
+    font-size: 11px;
+}
+
+.tavs__filter__input {
+    display: inline-block;
+    vertical-align: top;
+
+    border: 1px solid black !important;
+    border-radius: 4px 0 0 4px !important;
+}
+
+.tavs__filter__clear-button {
+    vertical-align: top;
+
+    border: 1px solid black;
+    border-radius: 0 4px 4px 0;
+}
+
+.tavs__filter__filter-button {
+    margin-left: 15px;
+    vertical-align: top;
+}
+
+.tavs__filter__highlight-button {
+    margin-left: 5px;
+    vertical-align: top;
+}
+
+.tavs__filter__follower-checkbox {
+    display: inline-block;
+    position: relative;
+    top: 5px;
+}
+
+.tavs__filter__follower-checkbox input {
+    margin-right: 10px;
+}
+
+.tavs__graph-wrapper {
+    grid-column: 1 / span 8;
+
+    margin-top: 40px;
+}
+
+.tavs__embed-wrapper {
+    grid-column: 9 / span 4;
+
+    margin-top: 40px;
+}
+
+.tavs__embed-wrapper iframe {
+    width: 100%;
+    height: 100%;
+
+    border: 0;
+}
+
+
+
+
+
+.tavs-unit--max-width {
+    margin: 0 auto;
+    max-width: 200px;
+}
+
+.tavs-unit * {
+    color: inherit;
+}
+
+.tavs-unit:hover *,
+.tavs-unit:active *,
+.tavs-unit:focus * {
+    color: #000000;
+}
+
+.tavs-unit__media-wrapper {
+    position: relative;
+    height: 0;
+    padding-top: 100%;
+}
+
+.tavs-unit__media {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center center;
+}
+
+.tavs-unit__extra-content {
+    font-family: 'Poppins', sans-serif;
+
+    text-align:center;
+}
+
+.tavs-unit__extra-content p {
+    margin: 0;
+}
+
+.tavs-unit__extra-content > p,
+.tavs-unit__extra-content > div {
+    margin-top: 10px;
+}
+
+
+.tavs-grid {
+
+}
+
+.tavs-grid + .tavs-grid {
+    margin-top: 20px;
+}
+
+.tavs-grid--margin-top {
+    margin-top: 60px;
+}
+
+.tavs-grid__heading {
+    grid-column: span 12;
+
+    margin: 0;
+
+    font-weight: 700;
+    font-size: 48px;
+    color: black;
+}
+
+.tavs-grid__heading--semi {
+    font-weight: 600;
+}
+
+
+
+.tavs-grid__unit--full {
+    grid-column: span 12;
+}
+
+
+.tavs-grid__unit--third {
+    grid-column: span 4;
+}
+
+.tavs-grid__unit--sixth {
+    grid-column: 2 / span 2;
+}
+
+.tavs-grid__unit--padded {
+    padding: 0 15px 15px 15px;
+}
+
+.tavs-match_report {
+    font-family: 'Poppins', sans-serif;
+    overflow-y: auto;
+    height: 300px;
+}
