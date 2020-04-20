@@ -36,7 +36,6 @@ def getCovidDataframes():
     return dfs
 
 
-
 app.index_string = '''
 <!DOCTYPE html>
 <html>
