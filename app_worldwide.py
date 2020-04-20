@@ -235,7 +235,7 @@ def updateTotalDeathsTimeline(locations,
 				df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
 				df_location = df_location.reset_index()
 				data.append(go.Scatter( x=df_location.index,
-					    y=df_location[location_key].rolling(smoothing_range).sum(),
+					    y=df_location[location_key].rolling(smoothing_range).mean(),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -247,7 +247,7 @@ def updateTotalDeathsTimeline(locations,
 			else:	
 
 				data.append(go.Scatter( x=df['date'],
-					    y=df[location_key].fillna(0).rolling(smoothing_range).sum(),
+					    y=df[location_key].fillna(0).rolling(smoothing_range).mean(),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -331,7 +331,7 @@ def updateRatesTimeline(locations,
 				df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
 				df_location = df_location.reset_index()
 				data.append(go.Scatter( x=df_location.index,
-					    y=100.0*df_location[location_key].rolling(smoothing_range).sum().pct_change(),
+					    y=100.0*df_location[location_key].rolling(smoothing_range).mean().pct_change(),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -343,7 +343,7 @@ def updateRatesTimeline(locations,
 			else:	
 
 				data.append(go.Scatter( x=df['date'],
-					    y=100.0*df[location_key].fillna(0).rolling(smoothing_range).sum().pct_change(),
+					    y=100.0*df[location_key].fillna(0).rolling(smoothing_range).mean().pct_change(),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
