@@ -17,6 +17,7 @@ import sys
 import os
 import json
 import time
+import datetime
 
 #import functools32
 import collections
@@ -118,26 +119,7 @@ def getWorldwideMasthead():
 									placeholder='Choose Data...',
 									disabled=False,
 									multi=False),
-						html.Div('Smooth data over x no. days:'),
-						dcc.Slider(
-						        id='smoothing-range-selection-worldwide',
-						        min=1,
-						        max=10,
-						        step=1,
-						        value=1,
-						        marks={
-								        1: '1 Day',
-								        2: '',
-								        3: '',
-								        4: '',
-								        5: '5 Days',
-								        6: '',
-								        7: '',
-								        8: '',
-								        9: '',
-								        10: '10 Days',
-								    }
-						    )],
+						],
 						className='masthead__column_3',
 						id='data-selection-worldwide-div'
 					),
@@ -154,18 +136,80 @@ def getLayout():
 				html.Div([
 						#getHeader("worldwide"),
 						getWorldwideMasthead(),
-						html.Div('Total Deaths/Cases',id='worldwide-t-stats-div',className='tavs__batting-stats'),
+						#html.Div('Total Deaths/Cases',id='worldwide-t-stats-div',className='tavs__batting-stats'),
+						#html.Div(id='worldwide-t-graph',className='tavs__batting-graph'),
 						html.Div(id='worldwide-t-graph',className='tavs__batting-graph'),
-						html.Div(id='worldwide-t-report',className='tavs__batting-mod-graph'),
+						html.Div([
+							html.Div(id='worldwide-d-graph'),
+							
+							
+						],className='tavs__batting-mod-graph'),
 						#html.Div(id='batting-pos-graph',className='tavs__batting-pos-graph')
 
 			], className='l-subgrid'),
 				html.Div([
 						#getHeader("worldwide"),
 						#getWorldwideMasthead(),
-						html.Div('Daily Growth Rate in Deaths/Cases',id='worldwide-d-stats-div',className='tavs__batting-stats'),
-						html.Div(id='worldwide-d-graph',className='tavs__batting-graph'),
-						html.Div(id='worldwide-d-report',className='tavs__batting-mod-graph'),
+						#html.Div('Daily Growth Rate in Deaths/Cases',id='worldwide-d-stats-div',className='tavs__batting-stats'),
+						#html.Div(id='worldwide-d-graph',className='tavs__batting-graph'),
+						#html.Div(id='worldwide-d-report',className='tavs__batting-mod-graph'),
+						html.Div([
+							html.Div('Choose number of days to extend prediction (predictions are made using the latest rate of change with smoothing applied):'),
+							dcc.Slider(
+							        id='prediction-range-selection-worldwide',
+							        min=0,
+							        max=20,
+							        step=1,
+							        value=10,
+							        marks={
+									        0: '0 Days',
+									        1: '',
+									        2: '',
+									        3: '',
+									        4: '',
+									        5: '5 Days',
+									        6: '',
+									        7: '',
+									        8: '',
+									        9: '',
+									        10: '10 Days',
+									        11: '',
+									        12: '',
+									        13: '',
+									        14: '',
+									        15: '15 Days',
+									        16: '',
+									        17: '',
+									        18: '',
+									        19: '',
+									        20: '20 Days',
+									    }
+							    ),
+							
+						],className='tavs__bowling-graph'),
+						html.Div([
+							html.Div('Smooth rate of change data over x no. days:'),
+							dcc.Slider(
+							        id='smoothing-range-selection-worldwide',
+							        min=1,
+							        max=10,
+							        step=1,
+							        value=5,
+							        marks={
+									        1: '1 Day',
+									        2: '',
+									        3: '',
+									        4: '',
+									        5: '5 Days',
+									        6: '',
+									        7: '',
+									        8: '',
+									        9: '',
+									        10: '10 Days',
+									    }
+							    ),
+							
+						],className='tavs__bowling-mod-graph'),
 						#html.Div(id='batting-pos-graph',className='tavs__batting-pos-graph')
 
 			], className='l-subgrid'),
@@ -207,12 +251,14 @@ def updateTotalDeathsTimeline(timeline):
 	Input('timeline-selection-worldwide', 'value'),
 	Input('data-selection-worldwide', 'value'),
 	Input('count-selection-worldwide', 'value'),
-	Input('smoothing-range-selection-worldwide', 'value')])
+	Input('smoothing-range-selection-worldwide', 'value'),
+	Input('prediction-range-selection-worldwide', 'value')])
 def updateTotalDeathsTimeline(locations,
 							timeline,
 							data_type,
 							x_num,
-							smoothing_range):
+							smoothing_range,
+							x_days):
 						
 	if locations:
 		if data_type == 'Deaths':			
@@ -235,7 +281,7 @@ def updateTotalDeathsTimeline(locations,
 				df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
 				df_location = df_location.reset_index()
 				data.append(go.Scatter( x=df_location.index,
-					    y=df_location[location_key].rolling(smoothing_range).mean(),
+					    y=df_location[location_key],
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -243,11 +289,41 @@ def updateTotalDeathsTimeline(locations,
 					    opacity=1.0,
 					    text=location,
 					    name=location
+					))
+
+				prediction_df = df_location[['date',location_key]]
+				prediction_df['rolling_mean'] = 1.0 + df_location[location_key].fillna(0).pct_change().rolling(smoothing_range).mean()
+				prediction_df = prediction_df.iloc[[-1]]
+				r_index = prediction_df.index.values[0]
+
+				r_mean = prediction_df['rolling_mean'].values[0]
+				r_num = prediction_df[location_key].values[0]
+				for x in range(1,x_days):
+					extra_df = pd.DataFrame([[float(r_num)*r_mean**x,
+											 r_mean]], columns = [location_key,"rolling_mean"])
+					#print (extra_df)
+					prediction_df = pd.concat([prediction_df, extra_df], ignore_index=True,axis=0)
+
+				prediction_df.index = pd.RangeIndex(start=r_index, stop=r_index+x_days, step=1)
+
+				data.append(go.Scatter( x=prediction_df.index,
+					    y=prediction_df[location_key],
+					    mode='lines',
+					    marker=dict(
+					        color=colour_palette[count],
+					    ),
+					    line = dict(
+					    	color=colour_palette[count], 
+					    	dash='dot'),
+					    opacity=1.0,
+					    text=location,
+					    name=location,
+					    showlegend=False
 					))
 			else:	
 
 				data.append(go.Scatter( x=df['date'],
-					    y=df[location_key].fillna(0).rolling(smoothing_range).mean(),
+					    y=df[location_key].fillna(0),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -256,11 +332,44 @@ def updateTotalDeathsTimeline(locations,
 					    text=location,
 					    name=location
 					))
+				prediction_df = df[['date',location_key]]
+				prediction_df['rolling_mean'] = 1.0 + df[location_key].fillna(0).pct_change().rolling(smoothing_range).mean()
+				prediction_df = prediction_df.iloc[[-1]]
+				r_date = prediction_df['date'].values[0]
+				r_mean = prediction_df['rolling_mean'].values[0]
+				r_num = prediction_df[location_key].values[0]
+				print (r_mean)
+
+				#x_days = 14
+				for x in range(1,x_days):
+					r_dt = datetime.datetime.strptime(r_date, '%Y-%m-%d') 
+					extra_df = pd.DataFrame([[r_dt+datetime.timedelta(days=x),
+											 float(r_num)*r_mean**x,
+											 r_mean]], columns = ["date", location_key,"rolling_mean"])
+					#print (extra_df)
+					prediction_df = pd.concat([prediction_df, extra_df], ignore_index=True,axis=0)
+
+				data.append(go.Scatter( x=prediction_df['date'],
+					    y=prediction_df[location_key],
+					    mode='lines',
+					    marker=dict(
+					        color=colour_palette[count],
+					    ),
+					    line = dict(
+					    	color=colour_palette[count], 
+					    	dash='dot'),
+					    opacity=1.0,
+					    text=location,
+					    name=location,
+					    showlegend=False
+					))				
+
 			count+=1
 		
 		figure = {
 				'data': data,
 				'layout': go.Layout(
+								title='Cumulative '+data_type,
 				                legend=dict(orientation="h",
 			                                x=0,
 			                                y=1.1),
@@ -331,7 +440,7 @@ def updateRatesTimeline(locations,
 				df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
 				df_location = df_location.reset_index()
 				data.append(go.Scatter( x=df_location.index,
-					    y=100.0*df_location[location_key].rolling(smoothing_range).mean().pct_change(),
+					    y=100.0*df_location[location_key].pct_change().rolling(smoothing_range).mean(),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -343,7 +452,7 @@ def updateRatesTimeline(locations,
 			else:	
 
 				data.append(go.Scatter( x=df['date'],
-					    y=100.0*df[location_key].fillna(0).rolling(smoothing_range).mean().pct_change(),
+					    y=100.0*df[location_key].fillna(0).pct_change().rolling(smoothing_range).mean(),
 					    mode='lines',
 					    marker=dict(
 					        color=colour_palette[count],
@@ -357,6 +466,8 @@ def updateRatesTimeline(locations,
 		figure = {
 				'data': data,
 				'layout': go.Layout(
+								title='Daily rate of change for '+data_type+' (%)',
+								showlegend=False,
 				                legend=dict(orientation="h",
 			                                x=0,
 			                                y=1.1),

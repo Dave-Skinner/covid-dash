@@ -13,6 +13,7 @@ import datadotworld as dw
 
 local_version = False
 
+
 if local_version:
     app = dash.Dash('Covid Dash')
     app.config.suppress_callback_exceptions = True

@@ -3,6 +3,10 @@
 }
 
 
+.tavs__smooth-data {
+    padding-left: 50px;
+}
+
 .tavs__batting-stats {
     grid-column: 1 / span 2;
     margin-left: 20px;
@@ -20,14 +24,16 @@
 }
 
 .tavs__batting-mod-graph {
-    grid-column: 9 / span 6;
+    font-family: 'Poppins', sans-serif;
+    grid-column: 8 / span 5;
 
     margin-top: 0px;
     margin-left: 0;
 }
 
 .tavs__bowling-mod-graph {
-    grid-column: 9 / span 6;
+    font-family: 'Poppins', sans-serif;
+    grid-column: 9 / span 3;
 
     margin-top: 20px;
     margin-left: 0;
@@ -36,7 +42,7 @@
 .tavs__batting-graph {
     font-family: 'Poppins', sans-serif;
 
-    grid-column: 3 / span 8;
+    grid-column: 1 / span 7;
 
     margin-right: -50px;
 }
@@ -44,9 +50,9 @@
 .tavs__bowling-graph {
     font-family: 'Poppins', sans-serif;
 
-    grid-column: 3 / span 6;
+    grid-column: 2 / span 6;
 
-    margin-right: -50px;
+    margin-right: 50px;
 }
 
 
