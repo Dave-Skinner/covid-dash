@@ -37,7 +37,6 @@ def getCovidDataframes():
 
 
 
-
 app.index_string = '''
 <!DOCTYPE html>
 <html>
