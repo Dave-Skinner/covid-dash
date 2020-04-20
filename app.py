@@ -17,7 +17,7 @@ if local_version:
     app = dash.Dash('Covid Dash')
     app.config.suppress_callback_exceptions = True
 else:
-    server = Flask('Tav Dash')
+    server = Flask('Covid Dash')
     server.secret_key = os.environ.get('secret_key', 'secret')
     at_config={}
     app = dash.Dash('Covid Dash', server=server)
@@ -27,9 +27,11 @@ else:
 
 #@functools32.lru_cache(maxsize=32)
 def getCovidDataframes():
-    dataset = dw.load_dataset('markmarkoh/coronavirus-data')
+    dataset = dw.load_dataset('markmarkoh/coronavirus-data',auto_update=True)
 
     dfs = dataset.dataframes
+
+    #print (dfs.describe())
 
     return dfs
 
@@ -41,7 +43,7 @@ app.index_string = '''
 <html>
     <head>
         {%metas%}
-        <title>Taverages</title>
+        <title>Covid 19 Tracker</title>
         {%favicon%}
         {%css%}
     </head>
