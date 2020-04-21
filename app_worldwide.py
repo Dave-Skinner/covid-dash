@@ -56,8 +56,6 @@ data_selections = ['Deaths',
 pop_selections = ['Total Number',
 				   '% of Population']
 
-count_selections = [25]
-
 
 def getFullData():
 	dfs = getCovidDataframes()
@@ -290,7 +288,7 @@ def updateTotalDeathsTimeline(locations,
 
 		df['sum_data'] = df.apply(lambda x: sumLocations(x, locations), axis=1)
 		df = df.drop(df[(df['sum_data'] == 0)].index)
-
+		#print(df,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		data = []
 		count=0
 		for location in locations:
@@ -304,14 +302,19 @@ def updateTotalDeathsTimeline(locations,
 				print (area)
 				print (pop_density)
 				df[location_key] = 100.0*df[location_key]/population
+			else:
+				population = 1.0
 
 
 			if not x_num: x_num = 0			
 
 			if timeline == 'Days since X number of deaths/cases':
+				#print (df,'++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 				df_location = df.fillna(0)
-				df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
+				#print (df_location,'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+				df_location = df_location.drop(df_location[(df_location[location_key] < x_num/population)].index)
 				df_location = df_location.reset_index()
+				#print (df_location)
 				data.append(go.Scatter( x=df_location.index,
 					    y=df_location[location_key],
 					    mode='lines',
@@ -324,7 +327,9 @@ def updateTotalDeathsTimeline(locations,
 					))
 
 				prediction_df = df_location[['date',location_key]]
+				#print (prediction_df)
 				prediction_df['rolling_mean'] = 1.0 + df_location[location_key].fillna(0).pct_change().rolling(smoothing_range).mean()
+				#print (prediction_df)
 				prediction_df = prediction_df.iloc[[-1]]
 				r_index = prediction_df.index.values[0]
 
@@ -366,6 +371,7 @@ def updateTotalDeathsTimeline(locations,
 					))
 				prediction_df = df[['date',location_key]]
 				prediction_df['rolling_mean'] = 1.0 + df[location_key].fillna(0).pct_change().rolling(smoothing_range).mean()
+				#print (prediction_df)
 				prediction_df = prediction_df.iloc[[-1]]
 				r_date = prediction_df['date'].values[0]
 				r_mean = prediction_df['rolling_mean'].values[0]
