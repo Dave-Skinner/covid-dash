@@ -9,7 +9,6 @@ from app import app
 import app_worldwide
 
 
-
 app.layout = html.Div([
 
     dcc.Location(id='url', refresh=False),

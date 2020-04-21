@@ -11,7 +11,7 @@ import datadotworld as dw
 
 
 
-local_version = False
+local_version = True
 
 
 if local_version:
