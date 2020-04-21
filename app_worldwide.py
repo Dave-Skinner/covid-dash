@@ -11,6 +11,7 @@ import dash_table as dt
 import pandas as pd
 import plotly.graph_objs as go
 import numpy as np
+from countryinfo import CountryInfo
 
 
 import sys
@@ -37,13 +38,23 @@ colour_palette = ['rgb(163,95,224)',
 					'rgb(255,234,0)',
 					'rgb(6,193,95)',
 					'rgb(209,210,212)',
-					'rgb(204,123,6)']
+					'rgb(204,123,6)',
+					'rgb(81,47,112)',
+					'rgb(120,10,11)',
+					'rgb(11,48,62)',
+					'rgb(127,117,0)',
+					'rgb(3,96,47)',
+					'rgb(104,105,106)',
+					'rgb(102,61,3)']
 
 timeline_selections = ['Timeline',
 						'Days since X number of deaths/cases']
 
 data_selections = ['Deaths',
 					'Cases']
+
+pop_selections = ['Total Number',
+				   '% of Population']
 
 count_selections = [25]
 
@@ -119,6 +130,13 @@ def getWorldwideMasthead():
 									placeholder='Choose Data...',
 									disabled=False,
 									multi=False),
+						html.Div('Choose total or % of population:'),
+						dcc.Dropdown(id='population-selection-worldwide', 
+									options=[{'label': i, 'value': i} for i in pop_selections],
+									value=pop_selections[0],
+									placeholder='Choose Data...',
+									disabled=False,
+									multi=False),
 						],
 						className='masthead__column_3',
 						id='data-selection-worldwide-div'
@@ -160,7 +178,7 @@ def getLayout():
 							        min=0,
 							        max=20,
 							        step=1,
-							        value=10,
+							        value=5,
 							        marks={
 									        0: '0 Days',
 									        1: '',
@@ -230,7 +248,7 @@ def sumLocations(s,
 @app.callback(
 	Output('count-selection-worldwide', 'disabled'),
 	[Input('timeline-selection-worldwide', 'value')])
-def updateTotalDeathsTimeline(timeline):
+def updateCountSelection(timeline):
 	if timeline == 'Days since X number of deaths/cases':
 		return False
 	else:
@@ -239,7 +257,7 @@ def updateTotalDeathsTimeline(timeline):
 @app.callback(
 	Output('count-selection-worldwide-div', 'hidden'),
 	[Input('timeline-selection-worldwide', 'value')])
-def updateTotalDeathsTimeline(timeline):
+def updateCountSelection(timeline):
 	if timeline == 'Days since X number of deaths/cases':
 		return False
 	else:
@@ -252,13 +270,15 @@ def updateTotalDeathsTimeline(timeline):
 	Input('data-selection-worldwide', 'value'),
 	Input('count-selection-worldwide', 'value'),
 	Input('smoothing-range-selection-worldwide', 'value'),
-	Input('prediction-range-selection-worldwide', 'value')])
+	Input('prediction-range-selection-worldwide', 'value'),
+	Input('population-selection-worldwide', 'value')])
 def updateTotalDeathsTimeline(locations,
 							timeline,
 							data_type,
 							x_num,
 							smoothing_range,
-							x_days):
+							x_days,
+							pop_type):
 						
 	if locations:
 		if data_type == 'Deaths':			
@@ -274,8 +294,20 @@ def updateTotalDeathsTimeline(locations,
 		data = []
 		count=0
 		for location in locations:
-			if not x_num: x_num = 0
 			location_key = location.lower().replace(' ','_')
+			if pop_type == '% of Population':
+				country = CountryInfo(location)
+				population = country.population()
+				area = country.area()
+				pop_density = float(population)/area
+				print (population)
+				print (area)
+				print (pop_density)
+				df[location_key] = 100.0*df[location_key]/population
+
+
+			if not x_num: x_num = 0			
+
 			if timeline == 'Days since X number of deaths/cases':
 				df_location = df.fillna(0)
 				df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
@@ -338,7 +370,7 @@ def updateTotalDeathsTimeline(locations,
 				r_date = prediction_df['date'].values[0]
 				r_mean = prediction_df['rolling_mean'].values[0]
 				r_num = prediction_df[location_key].values[0]
-				print (r_mean)
+				#print (r_mean)
 
 				#x_days = 14
 				for x in range(1,x_days):
@@ -365,11 +397,14 @@ def updateTotalDeathsTimeline(locations,
 					))				
 
 			count+=1
-		
+		if pop_type == "% of Population":
+			title_sub = ' (% of population)'
+		else:
+			title_sub = ''
 		figure = {
 				'data': data,
 				'layout': go.Layout(
-								title='Cumulative '+data_type,
+								title='Cumulative '+data_type+title_sub,
 				                legend=dict(orientation="h",
 			                                x=0,
 			                                y=1.1),
