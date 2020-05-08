@@ -1,6 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*- 
-
 # -*- coding: utf-8 -*-
 from flask import Flask
 import dash
@@ -20,7 +18,6 @@ import json
 import time
 import datetime
 
-#import functools32
 import collections
 
 from app import app, getCovidDataframes
@@ -82,6 +79,9 @@ def getLocations():
 	s = df['location'].drop_duplicates()
 	return s.tolist()
 
+def convert_to_datetime(d):
+	return datetime.datetime.strptime(np.datetime_as_string(d,unit='s'), '%Y-%m-%dT%H:%M:%S')
+
 def getWorldwideMasthead():
 
 	return html.Div([
@@ -107,7 +107,7 @@ def getWorldwideMasthead():
 									disabled=False,
 									multi=False),
 						html.Div([
-							html.Div('Choose X no. deaths/cases:'),
+							html.Div('Select X no. deaths/cases:'),
 							dcc.Dropdown(id='count-selection-worldwide', 
 										options=[{'label': i, 'value': i} for i in range(1,10000)],
 										value=25,
@@ -121,14 +121,14 @@ def getWorldwideMasthead():
 					),
 
 					html.Div([
-						html.Div('Choose deaths or cases::'),
+						html.Div('Select deaths or cases::'),
 						dcc.Dropdown(id='data-selection-worldwide', 
 									options=[{'label': i, 'value': i} for i in data_selections],
 									value=data_selections[0],
 									placeholder='Choose Data...',
 									disabled=False,
 									multi=False),
-						html.Div('Choose total or % of population:'),
+						html.Div('Select total or % of population:'),
 						dcc.Dropdown(id='population-selection-worldwide', 
 									options=[{'label': i, 'value': i} for i in pop_selections],
 									value=pop_selections[0],
@@ -139,38 +139,9 @@ def getWorldwideMasthead():
 						className='masthead__column_3',
 						id='data-selection-worldwide-div'
 					),
-
-				], id='worldwide-masthead-div',
-				   className='masthead l-grid'),
-
-			])
-
-
-
-def getLayout():
-	return 	html.Div([
-				html.Div([
-						#getHeader("worldwide"),
-						getWorldwideMasthead(),
-						#html.Div('Total Deaths/Cases',id='worldwide-t-stats-div',className='tavs__batting-stats'),
-						#html.Div(id='worldwide-t-graph',className='tavs__batting-graph'),
-						html.Div(id='worldwide-t-graph',className='tavs__batting-graph'),
+					html.Div([
 						html.Div([
-							html.Div(id='worldwide-d-graph'),
-							
-							
-						],className='tavs__batting-mod-graph'),
-						#html.Div(id='batting-pos-graph',className='tavs__batting-pos-graph')
-
-			], className='l-subgrid'),
-				html.Div([
-						#getHeader("worldwide"),
-						#getWorldwideMasthead(),
-						#html.Div('Daily Growth Rate in Deaths/Cases',id='worldwide-d-stats-div',className='tavs__batting-stats'),
-						#html.Div(id='worldwide-d-graph',className='tavs__batting-graph'),
-						#html.Div(id='worldwide-d-report',className='tavs__batting-mod-graph'),
-						html.Div([
-							html.Div('Choose number of days to extend prediction (predictions are made using the latest rate of change with smoothing applied):'),
+							html.Div('Choose no. of days to extend prediction (made using the latest rate of change with smoothing applied):'),
 							dcc.Slider(
 							        id='prediction-range-selection-worldwide',
 							        min=0,
@@ -202,7 +173,7 @@ def getLayout():
 									    }
 							    ),
 							
-						],className='tavs__bowling-graph'),
+						],className='masthead-slider'),
 						html.Div([
 							html.Div('Smooth rate of change data over x no. days:'),
 							dcc.Slider(
@@ -225,10 +196,38 @@ def getLayout():
 									    }
 							    ),
 							
-						],className='tavs__bowling-mod-graph'),
-						#html.Div(id='batting-pos-graph',className='tavs__batting-pos-graph')
+						],className='masthead-slider-2'),
+					], className='l-subgrid'),
+				], id='worldwide-masthead-div',
+				   className='masthead l-grid'),
+
+			])
+
+
+
+def getLayout():
+	return 	html.Div([
+				getHeader("worldwide"),
+				getWorldwideMasthead(),
+
+
+				html.Div([
+
+						html.Div(id='worldwide-t-graph',className='tavs__batting-graph'),
+						html.Div([
+							html.Div(id='worldwide-d-graph'),							
+						],className='tavs__batting-mod-graph'),
 
 			], className='l-subgrid'),
+
+			html.Div([
+				html.Div([
+					html.Div("Data Sources:" ),
+					dcc.Link("https://data.world/markmarkoh/coronavirus-data", href="https://data.world/markmarkoh/coronavirus-data"),
+					html.Div("This data has been collected, aggregated, and documented by Diana Beltekian, Daniel Gavrilov, Joe Hasell, Bobbie Macdonald, Edouard Mathieu, Esteban Ortiz-Ospina, Hannah Ritchie, Max Roser."),
+				],className='worldwide_data_footer')
+			], className='l-subgrid'),
+
 		], id='team-stats-page', className='shown-grid l-grid')
 
 
@@ -277,7 +276,9 @@ def updateTotalDeathsTimeline(locations,
 							smoothing_range,
 							x_days,
 							pop_type):
-						
+
+
+
 	if locations:
 		if data_type == 'Deaths':			
 			df = getTotalDeaths()
@@ -285,10 +286,8 @@ def updateTotalDeathsTimeline(locations,
 			df = getTotalCases()
 		else:
 			return None
-
 		df['sum_data'] = df.apply(lambda x: sumLocations(x, locations), axis=1)
 		df = df.drop(df[(df['sum_data'] == 0)].index)
-		#print(df,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		data = []
 		count=0
 		for location in locations:
@@ -305,16 +304,12 @@ def updateTotalDeathsTimeline(locations,
 			else:
 				population = 1.0
 
-
 			if not x_num: x_num = 0			
 
 			if timeline == 'Days since X number of deaths/cases':
-				#print (df,'++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 				df_location = df.fillna(0)
-				#print (df_location,'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 				df_location = df_location.drop(df_location[(df_location[location_key] < x_num/population)].index)
 				df_location = df_location.reset_index()
-				#print (df_location)
 				data.append(go.Scatter( x=df_location.index,
 					    y=df_location[location_key],
 					    mode='lines',
@@ -327,9 +322,7 @@ def updateTotalDeathsTimeline(locations,
 					))
 
 				prediction_df = df_location[['date',location_key]]
-				#print (prediction_df)
 				prediction_df['rolling_mean'] = 1.0 + df_location[location_key].fillna(0).pct_change().rolling(smoothing_range).mean()
-				#print (prediction_df)
 				prediction_df = prediction_df.iloc[[-1]]
 				r_index = prediction_df.index.values[0]
 
@@ -338,7 +331,6 @@ def updateTotalDeathsTimeline(locations,
 				for x in range(1,x_days):
 					extra_df = pd.DataFrame([[float(r_num)*r_mean**x,
 											 r_mean]], columns = [location_key,"rolling_mean"])
-					#print (extra_df)
 					prediction_df = pd.concat([prediction_df, extra_df], ignore_index=True,axis=0)
 
 				prediction_df.index = pd.RangeIndex(start=r_index, stop=r_index+x_days, step=1)
@@ -371,20 +363,16 @@ def updateTotalDeathsTimeline(locations,
 					))
 				prediction_df = df[['date',location_key]]
 				prediction_df['rolling_mean'] = 1.0 + df[location_key].fillna(0).pct_change().rolling(smoothing_range).mean()
-				#print (prediction_df)
 				prediction_df = prediction_df.iloc[[-1]]
 				r_date = prediction_df['date'].values[0]
 				r_mean = prediction_df['rolling_mean'].values[0]
 				r_num = prediction_df[location_key].values[0]
-				#print (r_mean)
-
-				#x_days = 14
+				
 				for x in range(1,x_days):
-					r_dt = datetime.datetime.strptime(r_date, '%Y-%m-%d') 
+					r_dt = convert_to_datetime(r_date)#datetime.datetime.strptime(r_date, '%Y-%m-%d') 
 					extra_df = pd.DataFrame([[r_dt+datetime.timedelta(days=x),
 											 float(r_num)*r_mean**x,
 											 r_mean]], columns = ["date", location_key,"rolling_mean"])
-					#print (extra_df)
 					prediction_df = pd.concat([prediction_df, extra_df], ignore_index=True,axis=0)
 
 				data.append(go.Scatter( x=prediction_df['date'],
@@ -469,8 +457,7 @@ def updateRatesTimeline(locations,
 		df['sum_data'] = df.apply(lambda x: sumLocations(x, locations), axis=1)
 		df = df.drop(df[(df['sum_data'] == 0)].index)
 		df = df.fillna(0)
-		#df = df.rolling(5).sum()
-
+		
 		data = []
 		count=0
 		for location in locations:
@@ -541,6 +528,9 @@ def updateRatesTimeline(locations,
 		return  dcc.Graph(figure=figure,
 			             config={'displayModeBar': False},
 			             id='total-deaths-d-graph')
+
+
+
 
 if __name__ == '__main__':
 	import sys
