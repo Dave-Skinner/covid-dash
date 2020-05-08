@@ -94,3 +94,20 @@
     z-index: 999;
 }
 
+
+.masthead-slider {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 1 / span 8;
+
+    margin-top: 0px;
+    margin-right: 50px;
+}
+
+.masthead-slider-2 {
+    font-family: 'Poppins', sans-serif;
+    grid-column: 9 / span 4;
+
+    margin-top: 0px;
+    margin-left: 0;
+}
