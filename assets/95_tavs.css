@@ -47,6 +47,107 @@
     margin-right: -50px;
 }
 
+.worldwide_data_footer {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 1 / span 7;
+
+    margin-top: 50px;
+}
+
+.mobility-t-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 1 / span 7;
+
+    margin-right: -50px;
+}
+
+.mobility-reg1-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 1 / span 4;
+
+    margin-right: -50px;
+}
+
+.mobility-reg2-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 5 / span 4;
+
+    margin-right: -50px;
+}
+
+.mobility-reg3-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 9 / span 4;
+
+    margin-right: -50px;
+}
+
+
+.mobility-stringency-graph {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 10 / span 2;
+
+    margin-left: 50px;
+}
+
+.mobility-slider {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 2 / span 5;
+
+    margin-right: 50px;
+    margin-top: 30px;
+}
+
+.mobility-slider-2 {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 8 / span 5;
+
+    margin-right: 50px;
+    margin-top: 30px;
+}
+
+.stringency-slider {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 2 / span 6;
+
+    margin-top: 30px;
+    margin-right: 50px;
+}
+
+.stringency-slider-2 {
+    font-family: 'Poppins', sans-serif;
+    grid-column: 9 / span 3;
+
+    margin-top: 30px;
+    margin-left: 0;
+}
+
+.worldwide-slider {
+    font-family: 'Poppins', sans-serif;
+
+    grid-column: 1 / span 8;
+
+    margin-top: 0px;
+    margin-right: 50px;
+}
+
+.worldwide-slider-2 {
+    font-family: 'Poppins', sans-serif;
+    grid-column: 9 / span 4;
+
+    margin-top: 0px;
+    margin-left: 0;
+}
+
 .tavs__bowling-graph {
     font-family: 'Poppins', sans-serif;
 
@@ -97,7 +198,15 @@
 
 
 
-
+*[data-dash-is-loading="true"]{
+    visibility: hidden;
+}
+*[data-dash-is-loading="true"]::before{
+    content: "Loading...";
+    display: inline-block;
+    color: 'rgb(0,0,0)';
+    visibility: visible;
+}
 
 
 
