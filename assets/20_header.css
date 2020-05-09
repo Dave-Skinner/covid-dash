@@ -4,14 +4,14 @@
     position: relative;
     padding: 25px 0 50px 0;
 
-    font-size: 28px;
+    font-size: 24px;
     text-align: right;
 }
 
 .header_title{
-    width: 800px;
+    width: 55%;
     font-family: 'Poppins', sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     position: absolute;
     left: 0;
     text-align: left;
@@ -23,7 +23,7 @@
 .header__list {
     display: inline-block;
     vertical-align: middle;
-    margin: 0 80px 0 0;
+    margin: 0 0px 0 0;
 }
 
 .header__item {

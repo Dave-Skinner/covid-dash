@@ -95,7 +95,7 @@ def getStringencyMasthead():
 						html.Div('Select timeline type:'),
 						dcc.Dropdown(id='timeline-selection-stringency', 
 									options=[{'label': i, 'value': i} for i in timeline_selections],
-									value=timeline_selections[0],
+									value=timeline_selections[1],
 									placeholder='Choose Timeline...',
 									disabled=False,
 									multi=False),

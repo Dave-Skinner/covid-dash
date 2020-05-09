@@ -222,9 +222,12 @@ def getLayout():
 
 			html.Div([
 				html.Div([
-					html.Div("Data Sources:" ),
+					html.Div("Covid-19 Deaths/Cases Data Source:" ),
 					dcc.Link("https://data.world/markmarkoh/coronavirus-data", href="https://data.world/markmarkoh/coronavirus-data"),
+					html.Div("  " ),
+					dcc.Link("https://ourworldindata.org/coronavirus-source-data", href="https://ourworldindata.org/coronavirus-source-data"),
 					html.Div("This data has been collected, aggregated, and documented by Diana Beltekian, Daniel Gavrilov, Joe Hasell, Bobbie Macdonald, Edouard Mathieu, Esteban Ortiz-Ospina, Hannah Ritchie, Max Roser."),
+					
 				],className='worldwide_data_footer')
 			], className='l-subgrid'),
 
