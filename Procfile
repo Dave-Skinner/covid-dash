@@ -1,1 +1,1 @@
-web: gunicorn index:app.server --timeout 3000
+web: gunicorn index:app.server 
