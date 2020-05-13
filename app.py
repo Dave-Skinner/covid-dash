@@ -95,8 +95,7 @@ def getStringencyDataFrame(country='GBR'):
     df['date'] = pd.to_datetime(df.date)
     df = df.sort_values(by=['date'])
 
-    return df
-    
+    return df    
 
 
 app.index_string = '''
