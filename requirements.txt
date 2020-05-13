@@ -13,3 +13,4 @@ requests==2.23.0
 countryinfo==0.1.0
 pycountry==19.8.18
 Flask-Caching==1.8.0
+scikit-learn==0.22.2.post1

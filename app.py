@@ -56,7 +56,6 @@ def getCovidJSON():
 
 
 
-
 def getCovidDataframes():
     json_ret = getCovidJSON()
     dfs = {}
