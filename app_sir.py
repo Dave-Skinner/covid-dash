@@ -323,7 +323,7 @@ def getBestFit(df_location,
 	beta_range = 200
 
 	if first_pass:
-		I_range = 50
+		I_range = 20
 	else:
 		I_range = 2
 	for x in range(1,beta_range):
@@ -332,7 +332,7 @@ def getBestFit(df_location,
 		for y in range(1,I_range):			
 			if first_pass:
 				D0 = x_num
-				I0 = int(D0 + D0*y*6)
+				I0 = int(10*D0 + D0*y*8)
 				#I0 = int(D0/(y*mortality_rate/50.0))
 				R0 = (D0/mortality_rate)				
 				S0 = N - I0 - R0
