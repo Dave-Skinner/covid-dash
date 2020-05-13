@@ -6,7 +6,7 @@ import dash_html_components as html
 import flask
 
 from app import app
-import app_worldwide, app_stringency, app_mobility, app_compliance, app_sir#, app_ons, app_density
+import app_worldwide, app_stringency, app_sir#, app_ons, app_density, app_mobility, app_compliance
 
 
 app.layout = html.Div([
