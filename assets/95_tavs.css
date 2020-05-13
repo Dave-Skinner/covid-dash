@@ -23,6 +23,20 @@
     background: rgb(242, 242, 242)
 }
 
+.sir_text{
+    font-family: 'Poppins', sans-serif;
+    grid-column: 8 / span 5;
+
+    margin-top: 50px;
+    margin-left: 25px;
+}
+.sir_text_gap{
+    font-family: 'Poppins', sans-serif;
+    grid-column: 8 / span 5;
+
+    margin-top: 20px;
+    margin-left: 25px;
+}
 .tavs__batting-mod-graph {
     font-family: 'Poppins', sans-serif;
     grid-column: 8 / span 5;

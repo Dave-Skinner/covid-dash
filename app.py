@@ -80,7 +80,7 @@ def getGoogleMobilityReports():
 @cache.memoize(timeout=timeout)
 def getStringencyData():
     today = datetime.date.today()
-    response = requests.get('https://covidtrackerapi.bsg.ox.ac.uk/api/stringency/date-range/2020-01-01/'+today.strftime('%Y-%m-%d'))
+    response = requests.get('https://covidtrackerapi.bsg.ox.ac.uk/api/v2/stringency/date-range/2020-01-01/'+today.strftime('%Y-%m-%d'))
     return response.json()['data']
 
 def getStringencyDataFrame(country='GBR'):

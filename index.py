@@ -6,7 +6,7 @@ import dash_html_components as html
 import flask
 
 from app import app
-import app_worldwide, app_stringency#, app_mobility, app_ons, app_density
+import app_worldwide, app_stringency, app_mobility, app_compliance, app_sir#, app_ons, app_density
 
 
 app.layout = html.Div([
@@ -23,19 +23,19 @@ app.layout = html.Div([
 def display_page(pathname):
     if not pathname: 
         return app_worldwide.getLayout()
-
     if pathname == "/worldwide": 
-        layout = app_worldwide.getLayout()
-        return layout
+        return app_worldwide.getLayout()
     elif pathname == "/stringency": 
-        layout = app_stringency.getLayout()
-        return layout
+        return app_stringency.getLayout()
+    elif pathname == "/mobility": 
+        return app_mobility.getLayout()
+    elif pathname == "/compliance": 
+        return app_compliance.getLayout()  
+    elif pathname == "/sirmodel": 
+        return app_sir.getLayout()           
     else:
         return app_worldwide.getLayout()
-    '''elif pathname == "/mobility": 
-        layout = app_mobility.getLayout()
-        return layout
-    elif pathname == "/ons_data": 
+    '''elif pathname == "/ons_data": 
         layout = app_ons.getLayout()
         return layout
     elif pathname == "/density": 

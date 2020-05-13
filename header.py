@@ -21,10 +21,10 @@ def getHeader(active):
 			dcc.Link("Stringency Data", href="/stringency", className="header__link"),
 			className="header__item {0}".format("is-active" if active == "stringency" else "")
 		),
-		#html.Li(
-		#	dcc.Link("Density Data", href="/density", className="header__link"),
-		#	className="header__item {0}".format("is-active" if active == "density" else "")
-		#),
+		html.Li(
+			dcc.Link("SIR Model", href="/sirmodel", className="header__link"),
+			className="header__item {0}".format("is-active" if active == "sirmodel" else "")
+		),
 	]
 	header_list = html.Ul(header_items, className="header__list")
 

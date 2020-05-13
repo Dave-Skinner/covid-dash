@@ -82,6 +82,17 @@ def getLocations():
 def convert_to_datetime(d):
 	return datetime.datetime.strptime(np.datetime_as_string(d,unit='s'), '%Y-%m-%dT%H:%M:%S')
 
+def getDaysMarks(days):
+	marks = {}
+
+	for x in range(0,days+1):
+		if x%5 == 0:
+			marks[x] = str(x)+ " Days"
+		else:
+			marks[x] = ""
+	#marks[1] = "1 Day"
+	return marks
+
 def getWorldwideMasthead():
 
 	return html.Div([
@@ -145,32 +156,10 @@ def getWorldwideMasthead():
 							dcc.Slider(
 							        id='prediction-range-selection-worldwide',
 							        min=0,
-							        max=20,
+							        max=40,
 							        step=1,
 							        value=5,
-							        marks={
-									        0: '0 Days',
-									        1: '',
-									        2: '',
-									        3: '',
-									        4: '',
-									        5: '5 Days',
-									        6: '',
-									        7: '',
-									        8: '',
-									        9: '',
-									        10: '10 Days',
-									        11: '',
-									        12: '',
-									        13: '',
-									        14: '',
-									        15: '15 Days',
-									        16: '',
-									        17: '',
-									        18: '',
-									        19: '',
-									        20: '20 Days',
-									    }
+							        marks=getDaysMarks(40)
 							    ),
 							
 						],className='masthead-slider'),
