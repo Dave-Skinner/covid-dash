@@ -13,7 +13,6 @@ from flask_caching import Cache
 import requests
 import datetime
 
-
 local_version = False
 
 
