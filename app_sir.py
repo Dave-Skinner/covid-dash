@@ -22,7 +22,7 @@ import datetime
 
 import collections
 
-from app import app, getCovidDataframes
+from app import app, getCovidDataframes, cache
 from header import getHeader
 
 
@@ -95,6 +95,26 @@ def getDaysMarks(days):
 	#marks[1] = "1 Day"
 	return marks
 
+def getR0Marks(start,
+			   finish,
+			   step):
+	marks = {}
+	x=start
+	y=0
+	while x <= finish:
+
+		if y%5==0:
+			marks[x] = str(x)
+		else:
+			marks[x] = ""
+		x+=step
+		y+=1
+		x = round(x,1)
+	marks[0] = "0.0"
+	return marks
+
+
+
 def getWorldwideMasthead():
 
 	return html.Div([
@@ -166,7 +186,7 @@ def getWorldwideMasthead():
 							        min=1,
 							        max=15,
 							        step=1,
-							        value=9,
+							        value=10,
 							        marks={
 									        1: '1 Day',
 									        2: '',
@@ -212,6 +232,20 @@ def getLayout():
 							    id='show-infections-selection-sir'
 							),
 							html.Div(id='sir-t-graph'),
+							html.Div([
+								html.Div('Increase/decrease R0 for the predictive part of the model:'),
+								dcc.Slider(
+								        id='r0-range-selection-sir',
+								        min=-2.0,
+								        max=2.0,
+								        step=0.1,
+								        value=0.0,
+								        marks=getR0Marks(-2.0,
+														   2.0,
+														   0.1)
+								    ),
+								
+							],className='masthead-slider'),
 						],className='tavs__batting-graph'),
 						html.Div([
 							html.Div('''This is an attempt to retro-fit the simplest SIR epidemiological model to the current available data.
@@ -230,8 +264,11 @@ def getLayout():
 										can sometimes help the model fit around these kinks. Sometimes the model is unable to find a satisfactory fit at all.'''),
 							html.Div('''''',className='sir_text_gap'),
 							html.Div('''The bars on the graph show the R0 of the different sub-models. This gives us an idea of how R0 changes as the epidemic progresses in that 
-										country. The dotted lines show the modelled number of deaths, the forecast can be extended into the future using the extend prediction slider above. 
-										Changing any of the parameters will cause the model to reload, which may take some time.
+										country. The dotted lines show the modelled number of deaths, the forecast can be extended into the future using the extend prediction slider above.										
+										'''),
+							html.Div('''''',className='sir_text_gap'),
+							html.Div('''As stated above, R0 will continue to change as time progresses. You can adjust the R0 value for the predictive part of the model using the slider below the graph. 
+										Use this to see what will happen if R0 increases or decreases. You'll see R0 change on the final bar in the chart.
 										'''),
 							html.Div(id='sir-d-graph'),							
 						],className='sir_text'),
@@ -289,8 +326,8 @@ def deriv(y, t, N, beta, gamma):
 	dRdt = gamma * I
 	return dSdt, dIdt, dRdt
 
-
-
+timeout=360
+@cache.memoize(timeout=timeout)
 def getBestFit(df_location,
 				x_num,
 				population,
@@ -302,6 +339,7 @@ def getBestFit(df_location,
 				R_in=None,
 				D_in=None,
 				x_days=None,
+				r0_shift=None,
 				print_bool=False):
 
 	num_days = df_location.shape[0]
@@ -367,23 +405,53 @@ def getBestFit(df_location,
 	max_df_location = df_location.iloc[-1]
 	end_diff = max_df_location/max_D
 
-	if x_days:
-		t = np.linspace(0, num_days+x_days, num_days+x_days)
-		# Initial conditions vector
-		y0 = S0, I0, R0
-		# Integrate the SIR equations over the time grid, t.
-		ret = odeint(deriv, y0, t, args=(N, best_beta, gamma))
-		best_S, best_I, best_R = ret.T
+	best_R = pd.DataFrame(best_R)
+	best_I = pd.DataFrame(best_I)
+	best_S = pd.DataFrame(best_S)
 
-		best_D = pd.DataFrame(best_R*mortality_rate)
+	if x_days:
+		if r0_shift:
+			beta_shift = r0_shift/disease_duration
+			t = np.linspace(0, x_days, x_days)
+			print (best_S.info())
+			S0 = int(best_S.iloc[-1])
+			I0 = int(best_I.iloc[-1])
+			R0 = int(best_R.iloc[-1])
+			# Initial conditions vector
+			y0 = S0, I0, R0
+			print (y0,'~~~~~~~~~~~~~~~~~~~~')
+			# Integrate the SIR equations over the time grid, t.
+			ret = odeint(deriv, y0, t, args=(N, best_beta+beta_shift, gamma))
+			append_S, append_I, append_R = ret.T
+			append_D = pd.DataFrame(append_R*mortality_rate)
+			append_R = pd.DataFrame(append_R)
+			append_I = pd.DataFrame(append_I)
+			append_S = pd.DataFrame(append_S)
+
+			best_D = pd.concat([best_D, append_D.tail(-1)], ignore_index=True,axis=0)
+			best_I = pd.concat([best_I, append_I.tail(-1)], ignore_index=True,axis=0)
+			best_R = pd.concat([best_R, append_R.tail(-1)], ignore_index=True,axis=0)
+			best_S = pd.concat([best_S, append_S.tail(-1)], ignore_index=True,axis=0)
+		else:
+			t = np.linspace(0, num_days+x_days, num_days+x_days)
+			# Initial conditions vector
+			y0 = S0, I0, R0
+			# Integrate the SIR equations over the time grid, t.
+			ret = odeint(deriv, y0, t, args=(N, best_beta, gamma))
+			best_S, best_I, best_R = ret.T
+
+			best_D = pd.DataFrame(best_R*mortality_rate)
+			best_R = pd.DataFrame(best_R)
+			best_I = pd.DataFrame(best_I)
+			best_S = pd.DataFrame(best_S)
 	
 
 	best_D = best_D*end_diff
-	best_R = pd.DataFrame(best_R)*end_diff 
-	best_I = pd.DataFrame(best_I)*end_diff 
+	best_R = best_R*end_diff 
+	best_I = best_I*end_diff 
 
 	print ('REGULAR min_mse = ', min_mse)
-	print ('Total Infections = ', int(N - best_S[-1]))
+	print ('Total Infections = ', int(N - best_S.iloc[-1]))
 
 
 	return t, best_D, best_I, best_R, best_beta*disease_duration
@@ -393,6 +461,7 @@ def getVariableBetaForecast(df_location,
 							location,
 							x_days,
 							forecast_size,
+							r0_shift,
 							mortality_rate = 0.01,
 							disease_duration = 14):
 
@@ -456,7 +525,8 @@ def getVariableBetaForecast(df_location,
 												first_pass=False,
 												I_in=best_I.iloc[-1],
 												R_in=best_R.iloc[-1],
-												x_days=x_days)
+												x_days=x_days,
+												r0_shift=r0_shift)
 
 	full_D = pd.concat([full_D, best_D.tail(-1)], ignore_index=True,axis=0)
 	full_I = pd.concat([full_I, best_I.tail(-1)], ignore_index=True,axis=0)
@@ -475,7 +545,8 @@ def getVariableBetaForecast(df_location,
 	Input('smoothing-range-selection-sir', 'value'),
 	Input('prediction-range-selection-sir', 'value'),
 	Input('infectious-days-selection-sir', 'value'),
-	Input('show-infections-selection-sir', 'value')])
+	Input('show-infections-selection-sir', 'value'),
+	Input('r0-range-selection-sir', 'value')])
 def updateTotalDeathsTimeline(location,
 							timeline,
 							mortality_rate,
@@ -483,11 +554,12 @@ def updateTotalDeathsTimeline(location,
 							forecast_size,
 							x_days,
 							disease_duration,
-							show_infections):
+							show_infections,
+							r0_shift):
 
 	start_time = datetime.datetime.now()
 	smoothing_range = 5
-	forecast_size+=1 #FIX THIS THROUGHOUT
+	forecast_size #FIX THIS THROUGHOUT
 	if location:
 		df = getTotalDeaths()
 		data = []
@@ -510,7 +582,7 @@ def updateTotalDeathsTimeline(location,
 				    y=df_location[location_key],
 				    mode='lines',
 				    marker=dict(
-				        color=colour_palette[count],
+				        color=colour_palette[count-1],
 				    ),
 				    opacity=1.0,
 				    text=location,
@@ -522,16 +594,18 @@ def updateTotalDeathsTimeline(location,
 			df_forecast = df_forecast.reset_index()
 
 			print (x_days, "***********************************************")
-			prediction_df, full_I, r0_list = getVariableBetaForecast(df_forecast,
+			full_D, full_I, r0_list = getVariableBetaForecast(df_forecast,
 													location,
 													x_days,
 													forecast_size,
+													r0_shift,
 													mortality_rate = mortality_rate,
 													disease_duration = disease_duration)
+			print (r0_list)
 	
 
-			data.append(go.Scatter( x=prediction_df.index,
-				    y=prediction_df[0],
+			data.append(go.Scatter( x=full_D.index,
+				    y=full_D[0],
 				    mode='lines',
 				    marker=dict(
 				        color=colour_palette[count],
@@ -544,12 +618,36 @@ def updateTotalDeathsTimeline(location,
 				    name='Deaths (SIR Model)',
 				    showlegend=True
 				))
-			prediction_size = prediction_df.shape[0]
-			num_bars = int(prediction_size/(forecast_size-1))
-			bar_position = [(forecast_size-1)*(0.5+x) for x in range(num_bars)]
-			diff_len = len(bar_position)-len(r0_list)
-			for x in range(diff_len):
-				r0_list.append(r0_list[-1])
+			full_timeline_size = full_D.shape[0]-1
+			print (full_timeline_size)
+			reg_timeline_size = full_timeline_size - x_days
+			print (reg_timeline_size)
+			num_bars = int(reg_timeline_size/(forecast_size))
+			print (num_bars)
+			bar_position = [(forecast_size)*(0.5+x) for x in range(num_bars)]
+			print (bar_position)
+			bar_widths = [(forecast_size) for x in range(num_bars)]
+			print (bar_widths)
+
+			last_bar_width = (full_timeline_size-x_days)%(forecast_size)
+			bar_widths[-1]+=last_bar_width
+			bar_position[-1]+=0.5*last_bar_width
+			print (bar_widths)
+			print (bar_position)
+			print (r0_list)
+			#for x in range(diff_len):
+			#r0_list.append(r0_list[-1])
+			#r0_list.append(r0_list[-1])
+			
+
+			prediction_bar_width = x_days
+			prediction_bar_position = bar_position[-1] + 0.5*bar_widths[-1] + 0.5*prediction_bar_width
+			prediction_r0 = r0_list[-1]+r0_shift
+
+			bar_widths.append(prediction_bar_width)
+			bar_position.append(prediction_bar_position)
+			r0_list.append(prediction_r0)
+
 			r0_list = [round(num, 2) for num in r0_list]
 			
 			data.append(go.Bar( x=bar_position ,
@@ -558,7 +656,7 @@ def updateTotalDeathsTimeline(location,
 				        color=colour_palette[count],
 				    ),
 				    opacity=0.2,
-				    width=forecast_size,
+				    width=bar_widths,
 				    text=r0_list,
             		textposition='outside',
 				    yaxis='y2',
@@ -569,10 +667,10 @@ def updateTotalDeathsTimeline(location,
 					    y=full_I[0]/1,
 					    mode='lines',
 					    marker=dict(
-					        color=colour_palette[count-1],
+					        color=colour_palette[count+2],
 					    ),
 					    line = dict(
-					    	color=colour_palette[count-1], 
+					    	color=colour_palette[count+2], 
 					    	dash='dot'),
 					    opacity=1.0,
 					    text=location,
@@ -594,7 +692,7 @@ def updateTotalDeathsTimeline(location,
 				                hovermode='closest',
 				                margin=dict(t=50),
 				                xaxis=dict(
-				                		title='Days after reaching '+str(x_num)+' dead',
+				                		title='Days after '+str(x_num)+' deaths',
 				                        tickfont=dict(
 				                                family='Arial',
 				                                size=14,
