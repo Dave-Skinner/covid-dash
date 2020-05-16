@@ -642,6 +642,8 @@ def updateTotalDeathsTimeline(location,
 
 			prediction_bar_width = x_days
 			prediction_bar_position = bar_position[-1] + 0.5*bar_widths[-1] + 0.5*prediction_bar_width
+			print (r0_list[-1])
+			print (r0_shift)
 			prediction_r0 = r0_list[-1]+r0_shift
 
 			bar_widths.append(prediction_bar_width)
@@ -649,7 +651,7 @@ def updateTotalDeathsTimeline(location,
 			r0_list.append(prediction_r0)
 
 			r0_list = [round(num, 2) for num in r0_list]
-			
+			print (r0_list)
 			data.append(go.Bar( x=bar_position ,
 				    y=r0_list ,
 				    marker=dict(
