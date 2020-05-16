@@ -646,6 +646,8 @@ def updateTotalDeathsTimeline(location,
 			print (r0_shift)
 			prediction_r0 = r0_list[-1]+r0_shift
 
+			if len(bar_widths) < len(r0_list):
+				r0_list = r0_list.pop()
 			bar_widths.append(prediction_bar_width)
 			bar_position.append(prediction_bar_position)
 			r0_list.append(prediction_r0)
