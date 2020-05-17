@@ -7,7 +7,9 @@ def getHeader(active):
 								The Cumulative Data page tracks cumulative Covid-19 deaths/cases and
 								extends predictions using the latest daily rate of change.
 								The Stringency Data page compares the OxCGRT Stringency Index (a measurement of 
-								Covid-19 policy responses around the world) to daily Covid-19 deaths/cases in each country. ''',className='header_title')
+								Covid-19 policy responses around the world) to daily Covid-19 deaths/cases in each country. 
+								The SIR Model page retrofits a series of SIR models to the latest data and uses this to estimate 
+								R0 throughout the epidemic. ''',className='header_title')
 	header_items = [
 		html.Li(
 			dcc.Link("Cumulative Data", href="/worldwide", className="header__link"),

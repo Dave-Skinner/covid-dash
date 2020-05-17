@@ -186,7 +186,7 @@ def getWorldwideMasthead():
 							        min=1,
 							        max=15,
 							        step=1,
-							        value=10,
+							        value=9,
 							        marks={
 									        1: '1 Day',
 									        2: '',
@@ -236,13 +236,16 @@ def getLayout():
 								html.Div('Increase/decrease R0 for the predictive part of the model:'),
 								dcc.Slider(
 								        id='r0-range-selection-sir',
-								        min=-2.0,
-								        max=2.0,
-								        step=0.1,
-								        value=0.0,
-								        marks=getR0Marks(-2.0,
-														   2.0,
-														   0.1)
+								        min=0,
+								        max=400,
+								        step=1,
+								        value=200,
+								        marks={0:'-2.0',
+								        		100:'-1.0',
+								        		200:'0.0',
+								        		300:'1.0',
+								        		400:'2.0'},#getR0Marks(-2.0, 2.0, 0.1),
+        							#updatemode='drag'
 								    ),
 								
 							],className='masthead-slider'),
@@ -410,7 +413,7 @@ def getBestFit(df_location,
 	best_S = pd.DataFrame(best_S)
 
 	if x_days:
-		if r0_shift:
+		if r0_shift is not None:
 			beta_shift = r0_shift/disease_duration
 			t = np.linspace(0, x_days, x_days)
 			print (best_S.info())
@@ -477,7 +480,7 @@ def getVariableBetaForecast(df_location,
 	full_loc = df_location
 	r0_list = []
 
-	t, best_D, best_I, best_R, best_r0 = getBestFit(df_location.head(forecast_size), 
+	t, best_D, best_I, best_R, best_r0 = getBestFit(df_location.head((forecast_size+1)), 
 													x_num,
 													population,
 													mortality_rate = mortality_rate,
@@ -487,15 +490,19 @@ def getVariableBetaForecast(df_location,
 	full_I = best_I
 	r0_list.append(best_r0)
 
-	remain_days = num_days-forecast_size
-	while remain_days > 2*forecast_size:
+	print ("Num days = ", num_days)
+	remain_days = num_days-(forecast_size+1)
+	print ("0: remain_days = ", remain_days)
+	debug_count = 1
+	while remain_days > 2*(forecast_size):
 		df_location = df_location.tail(remain_days+1)
+		print (debug_count, ": df_location.shape = ", df_location.shape[0])
 		print_bool = False
-		if (remain_days-forecast_size + 1) < 2*forecast_size:
+		'''if (remain_days-forecast_size + 1) < 2*forecast_size:
 			print ("Best I = ", best_I.iloc[-1])
 			print ("Best R = ", best_R.iloc[-1])
-			print_bool = True
-		t, best_D, best_I, best_R, best_r0 = getBestFit(df_location.head(forecast_size),
+			print_bool = True'''
+		t, best_D, best_I, best_R, best_r0 = getBestFit(df_location.head((forecast_size+1)),
 													x_num,
 													population,
 													mortality_rate = mortality_rate,
@@ -505,18 +512,19 @@ def getVariableBetaForecast(df_location,
 													R_in=best_R.iloc[-1],
 													print_bool=print_bool)
 
-		full_D = pd.concat([full_D, best_D.tail(forecast_size-1)], ignore_index=True,axis=0)
-		full_I = pd.concat([full_I, best_I.tail(forecast_size-1)], ignore_index=True,axis=0)
+		full_D = pd.concat([full_D, best_D.tail(forecast_size)], ignore_index=True,axis=0)
+		full_I = pd.concat([full_I, best_I.tail(forecast_size)], ignore_index=True,axis=0)
 		r0_list.append(best_r0)
-		if (remain_days-forecast_size + 1) < 2*forecast_size:
+		'''if (remain_days-forecast_size + 1) < 2*forecast_size:
 			print (df_location.head(forecast_size))
 			print (full_D)
-			print (full_I)
+			print (full_I)'''
 			
-		remain_days = remain_days-forecast_size + 1
+		remain_days = remain_days-forecast_size
+		print (debug_count,': remain_days = ',remain_days)
 
 	df_location = df_location.tail(remain_days+1)
-
+	print ("df_location.shape (last)= ", df_location.shape[0])
 	t, best_D, best_I, best_R, best_r0 = getBestFit(df_location,
 												x_num,
 												population,
@@ -556,6 +564,7 @@ def updateTotalDeathsTimeline(location,
 							disease_duration,
 							show_infections,
 							r0_shift):
+	r0_shift = (r0_shift-200)/100
 
 	start_time = datetime.datetime.now()
 	smoothing_range = 5
@@ -618,18 +627,18 @@ def updateTotalDeathsTimeline(location,
 				    name='Deaths (SIR Model)',
 				    showlegend=True
 				))
-			full_timeline_size = full_D.shape[0]-1
+			full_timeline_size = full_D.shape[0]
 			print (full_timeline_size)
-			reg_timeline_size = full_timeline_size - x_days
+			reg_timeline_size = full_timeline_size - x_days 
 			print (reg_timeline_size)
-			num_bars = int(reg_timeline_size/(forecast_size))
+			num_bars = int(reg_timeline_size/(forecast_size))			
 			print (num_bars)
 			bar_position = [(forecast_size)*(0.5+x) for x in range(num_bars)]
 			print (bar_position)
 			bar_widths = [(forecast_size) for x in range(num_bars)]
 			print (bar_widths)
 
-			last_bar_width = (full_timeline_size-x_days)%(forecast_size)
+			last_bar_width = (reg_timeline_size)%(forecast_size)
 			bar_widths[-1]+=last_bar_width
 			bar_position[-1]+=0.5*last_bar_width
 			print (bar_widths)
@@ -653,6 +662,7 @@ def updateTotalDeathsTimeline(location,
 			r0_list.append(prediction_r0)
 
 			r0_list = [round(num, 2) for num in r0_list]
+			r0_label = ['R0='+str(num) for num in r0_list]
 			print (r0_list)
 			data.append(go.Bar( x=bar_position ,
 				    y=r0_list ,
@@ -661,7 +671,7 @@ def updateTotalDeathsTimeline(location,
 				    ),
 				    opacity=0.2,
 				    width=bar_widths,
-				    text=r0_list,
+				    text=r0_label,
             		textposition='outside',
 				    yaxis='y2',
 				    showlegend=False
