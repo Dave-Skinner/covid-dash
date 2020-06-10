@@ -35,7 +35,7 @@ timeout = 360
 
 @cache.memoize(timeout=timeout)
 def getCovidJSON():
-    dataset = dw.load_dataset('markmarkoh/coronavirus-data',auto_update=True)
+    dataset = dw.load_dataset('markmarkoh/coronavirus-data',force_update=True)
 
     dfs = dataset.dataframes
 
