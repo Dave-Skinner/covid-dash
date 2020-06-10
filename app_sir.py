@@ -156,12 +156,12 @@ def getWorldwideMasthead():
 					html.Div([
 						html.Div('Choose Mortality Rate:'),
 						dcc.Dropdown(id='mortality-rate-selection-sir', 
-									options=[{'label': str(i)+'%', 'value': i/100.0} for i in range(1,100)],
-										value=0.02),
+									options=[{'label': str(i/2)+'%', 'value': i/200.0} for i in range(1,100)],
+										value=0.01),
 						html.Div('No. of days a person remains infectious:'),
 						dcc.Dropdown(id='infectious-days-selection-sir', 
 									options=[{'label': str(i)+' Days', 'value': i} for i in range(2,14)],
-										value=7),
+										value=5),
 						],
 						className='masthead__column_3',
 						id='data-selection-sir-div'
@@ -186,7 +186,7 @@ def getWorldwideMasthead():
 							        min=1,
 							        max=15,
 							        step=1,
-							        value=9,
+							        value=8,
 							        marks={
 									        1: '1 Day',
 									        2: '',
@@ -452,12 +452,13 @@ def getBestFit(df_location,
 	best_D = best_D*end_diff
 	best_R = best_R*end_diff 
 	best_I = best_I*end_diff 
+	best_S = N - best_D -best_I - best_R
 
 	print ('REGULAR min_mse = ', min_mse)
 	print ('Total Infections = ', int(N - best_S.iloc[-1]))
 
 
-	return t, best_D, best_I, best_R, best_beta*disease_duration
+	return t, best_D, best_I, best_R, best_S, best_beta*disease_duration#*end_diff
 
 
 def getVariableBetaForecast(df_location,
@@ -480,7 +481,7 @@ def getVariableBetaForecast(df_location,
 	full_loc = df_location
 	r0_list = []
 
-	t, best_D, best_I, best_R, best_r0 = getBestFit(df_location.head((forecast_size+1)), 
+	t, best_D, best_I, best_R, best_S, best_r0 = getBestFit(df_location.head((forecast_size+1)), 
 													x_num,
 													population,
 													mortality_rate = mortality_rate,
@@ -502,7 +503,7 @@ def getVariableBetaForecast(df_location,
 			print ("Best I = ", best_I.iloc[-1])
 			print ("Best R = ", best_R.iloc[-1])
 			print_bool = True'''
-		t, best_D, best_I, best_R, best_r0 = getBestFit(df_location.head((forecast_size+1)),
+		t, best_D, best_I, best_R, best_S, best_r0 = getBestFit(df_location.head((forecast_size+1)),
 													x_num,
 													population,
 													mortality_rate = mortality_rate,
@@ -525,7 +526,7 @@ def getVariableBetaForecast(df_location,
 
 	df_location = df_location.tail(remain_days+1)
 	print ("df_location.shape (last)= ", df_location.shape[0])
-	t, best_D, best_I, best_R, best_r0 = getBestFit(df_location,
+	t, best_D, best_I, best_R, best_S, best_r0 = getBestFit(df_location,
 												x_num,
 												population,
 												mortality_rate = mortality_rate,
@@ -540,7 +541,12 @@ def getVariableBetaForecast(df_location,
 	full_I = pd.concat([full_I, best_I.tail(-1)], ignore_index=True,axis=0)
 	r0_list.append(best_r0)
 
-	return full_D, full_I, r0_list
+	total_susceptible = int(best_S.iloc[-1])
+	total_infected = population - total_susceptible
+	print (total_infected, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.' )
+	
+
+	return full_D, full_I, r0_list, total_infected, total_susceptible
 
 
 
@@ -568,22 +574,24 @@ def updateTotalDeathsTimeline(location,
 
 	start_time = datetime.datetime.now()
 	smoothing_range = 5
-	forecast_size #FIX THIS THROUGHOUT
+	#forecast_size #FIX THIS THROUGHOUT
 	if location:
 		df = getTotalDeaths()
 		data = []
 		count=2
 
 		location_key = location.lower().replace(' ','_')
-		population = 1.0
 
 		if not x_num: x_num = 0			
 
 		if timeline == 'Days since X number of deaths/cases':
 			df_location = df.fillna(0)
+			df_location = df_location[df_location[location_key] != 0]
 			df_forecast = df_location
+			#df_location = df_location.drop(df_location[(df_location[location_key] ==0 )].index)
 			df_forecast[location_key] = df_forecast[location_key].rolling(smoothing_range).mean().dropna()
-			df_location = df_location.drop(df_location[(df_location[location_key] < x_num/population)].index)
+			df_location = df_location.drop(df_location[(df_location[location_key] < x_num)].index)
+			print (df_location[location_key])
 			
 			df_location = df_location[location_key].dropna()
 			df_location = df_location.reset_index()
@@ -595,21 +603,24 @@ def updateTotalDeathsTimeline(location,
 				    ),
 				    opacity=1.0,
 				    text=location,
-				    name='Deaths'
+				    hovertext=df_location[location_key],
+				    name='Deaths',
+				    #hoverinfo='text',
+				    #hoveron='points'
 				))
 
-			df_forecast = df_forecast.drop(df_forecast[(df_forecast[location_key] < x_num/population)].index)
+			df_forecast = df_forecast.drop(df_forecast[(df_forecast[location_key] < x_num)].index)
 			df_forecast = df_forecast.dropna()
 			df_forecast = df_forecast.reset_index()
 
 			print (x_days, "***********************************************")
-			full_D, full_I, r0_list = getVariableBetaForecast(df_forecast,
-													location,
-													x_days,
-													forecast_size,
-													r0_shift,
-													mortality_rate = mortality_rate,
-													disease_duration = disease_duration)
+			full_D, full_I, r0_list, total_infected, total_susceptible = getVariableBetaForecast(df_forecast,
+																								location,
+																								x_days,
+																								forecast_size,
+																								r0_shift,
+																								mortality_rate = mortality_rate,
+																								disease_duration = disease_duration)
 			print (r0_list)
 	
 
@@ -624,8 +635,10 @@ def updateTotalDeathsTimeline(location,
 				    	dash='dot'),
 				    opacity=1.0,
 				    text=location,
+				    #hovertext=full_D[0],
 				    name='Deaths (SIR Model)',
-				    showlegend=True
+				    showlegend=True,
+				    #hoverinfo='text'
 				))
 			full_timeline_size = full_D.shape[0]
 			print (full_timeline_size)
@@ -662,7 +675,7 @@ def updateTotalDeathsTimeline(location,
 			r0_list.append(prediction_r0)
 
 			r0_list = [round(num, 2) for num in r0_list]
-			r0_label = ['R0='+str(num) for num in r0_list]
+			r0_label = ['R='+str(num) for num in r0_list]
 			print (r0_list)
 			data.append(go.Bar( x=bar_position ,
 				    y=r0_list ,
@@ -673,8 +686,10 @@ def updateTotalDeathsTimeline(location,
 				    width=bar_widths,
 				    text=r0_label,
             		textposition='outside',
+            		textfont_size=14,
 				    yaxis='y2',
-				    showlegend=False
+				    showlegend=False,
+				    #hoverinfo='skip'
 				))
 			if show_infections:
 				data.append(go.Scatter( x=full_I.index,
@@ -694,15 +709,26 @@ def updateTotalDeathsTimeline(location,
 		else:	
 			return None
 
-		title_sub = ''
+		total_dead = int(full_D.iloc[-1])
+		total_recovered = total_dead/mortality_rate
+
+		title_sub = 'Total S = ' + str(format(total_susceptible, ',d')) \
+				  + '<br>Total I  = ' + str(format(total_infected, ',d')) \
+				  + '<br>Total D = ' + str(format(total_dead, ',d')) \
+				  
+					
 		figure = {
 				'data': data,
 				'layout': go.Layout(
-								#title='Cumulative '+data_type+title_sub,
+								title={
+							        'text': title_sub,
+							        'y':0.95,
+							        'x':0.65,
+							        'xanchor': 'left'},
 				                legend=dict(orientation="h",
 			                                x=0,
 			                                y=1.1),
-				                 font=dict(family='Arial', size=15, color='#000000'),
+				                 font=dict(family='Arial', size=12, color='#000000'),
 				                hovermode='closest',
 				                margin=dict(t=50),
 				                xaxis=dict(
