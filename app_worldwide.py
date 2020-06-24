@@ -101,7 +101,7 @@ def getWorldwideMasthead():
 						html.Div('Select countries for comparison:'),
 						dcc.Dropdown(id='location-selection-worldwide', 
 									options=[{'label': i, 'value': i} for i in getLocations()],
-									value=['United Kingdom','United States','Italy','Spain','France','Germany'],
+									value=['United Kingdom','United States','Italy','Brazil','France','Germany'],
 									placeholder='Choose Location...',
 									disabled=False,
 									multi=True)],
@@ -185,7 +185,7 @@ def getWorldwideMasthead():
 									    }
 							    ),
 							
-						],className='masthead-slider-2'),
+						],className='masthead-slider-3'),
 					], className='l-subgrid'),
 				], id='worldwide-masthead-div',
 				   className='masthead l-grid'),

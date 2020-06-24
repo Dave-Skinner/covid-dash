@@ -168,7 +168,7 @@ def getWorldwideMasthead():
 					),
 					html.Div([
 						html.Div([
-							html.Div('Choose no. of days to extend prediction (using the latest sub-model):'),
+							html.Div('Choose no. of days to extend prediction:'),
 							dcc.Slider(
 							        id='prediction-range-selection-sir',
 							        min=0,
@@ -178,15 +178,15 @@ def getWorldwideMasthead():
 							        marks=getDaysMarks(40)
 							    ),
 							
-						],className='masthead-slider'),
+						],className='masthead-slider-1'),
 						html.Div([
-							html.Div('Choose duration of each sub-model:'),
+							html.Div('Smooth data over x no. days:'),
 							dcc.Slider(
 							        id='smoothing-range-selection-sir',
 							        min=1,
-							        max=15,
+							        max=10,
 							        step=1,
-							        value=8,
+							        value=3,
 							        marks={
 									        1: '1 Day',
 									        2: '',
@@ -207,6 +207,34 @@ def getWorldwideMasthead():
 							    ),
 							
 						],className='masthead-slider-2'),
+						html.Div([
+							html.Div('Choose duration of each sub-model:'),
+							dcc.Slider(
+							        id='duration-selection-sir',
+							        min=1,
+							        max=15,
+							        step=1,
+							        value=11,
+							        marks={
+									        1: '1 Day',
+									        2: '',
+									        3: '',
+									        4: '',
+									        5: '5 Days',
+									        6: '',
+									        7: '',
+									        8: '',
+									        9: '',
+									        10: '10 Days',
+									        11: '',
+									        12: '',
+									        13: '',
+									        14: '',
+									        15: '15 Days'
+									    }
+							    ),
+							
+						],className='masthead-slider-3'),
 					], className='l-subgrid'),
 				], id='sir-masthead-div',
 				   className='masthead l-grid'),
@@ -556,11 +584,12 @@ def getVariableBetaForecast(df_location,
 	Input('timeline-selection-sir', 'value'),
 	Input('mortality-rate-selection-sir', 'value'),
 	Input('count-selection-sir', 'value'),
-	Input('smoothing-range-selection-sir', 'value'),
+	Input('duration-selection-sir', 'value'),
 	Input('prediction-range-selection-sir', 'value'),
 	Input('infectious-days-selection-sir', 'value'),
 	Input('show-infections-selection-sir', 'value'),
-	Input('r0-range-selection-sir', 'value')])
+	Input('r0-range-selection-sir', 'value'),
+	Input('smoothing-range-selection-sir', 'value')])
 def updateTotalDeathsTimeline(location,
 							timeline,
 							mortality_rate,
@@ -569,11 +598,12 @@ def updateTotalDeathsTimeline(location,
 							x_days,
 							disease_duration,
 							show_infections,
-							r0_shift):
+							r0_shift,
+							smoothing_range):
 	r0_shift = (r0_shift-200)/100
 
 	start_time = datetime.datetime.now()
-	smoothing_range = 5
+	#smoothing_range = 5
 	#forecast_size #FIX THIS THROUGHOUT
 	if location:
 		df = getTotalDeaths()

@@ -27,10 +27,10 @@ from header import getHeader
 colour_palette = ['rgb(163,95,224)',
 					'rgb(240,21,22)',
 					'rgb(22,96,185)',
-					'rgb(255,234,0)',
 					'rgb(6,193,95)',
 					'rgb(209,210,212)',
 					'rgb(204,123,6)',
+					'rgb(255,234,0)',
 					'rgb(81,47,112)',
 					'rgb(120,10,11)',
 					'rgb(11,48,62)',
@@ -76,65 +76,71 @@ def getLocations():
 	s = df['location'].drop_duplicates()
 	return s.tolist()
 
+def convert_to_datetime(d):
+	return datetime.datetime.strptime(np.datetime_as_string(d,unit='s'), '%Y-%m-%dT%H:%M:%S')
+
+def convert_iso_to_datetime(d):
+	return datetime.datetime.strptime(d, '%Y-%m-%d')
+
 def getStringencyMasthead():
 
 	return html.Div([
 				html.Div([
 					html.Div([
 						html.Div('Select country:'),
-						dcc.Dropdown(id='location-selection-stringency', 
+						dcc.Dropdown(id='location-selection-excess', 
 									options=[{'label': i, 'value': i} for i in getLocations()],
-									value=['United Kingdom','Italy','Spain','France','Germany','Sweden'],
+									value=['United Kingdom','Italy','France','Germany','Sweden','Spain'],
 									placeholder='Choose Location...',
-									disabled=False,
+									disabled=True,
 									multi=True)],
 						className='masthead__column_1',
-						id='location-selection-stringency-div'
+						id='location-selection-excess-div'
 					),
 					html.Div([
 						html.Div('Select timeline type:'),
-						dcc.Dropdown(id='timeline-selection-stringency', 
+						dcc.Dropdown(id='timeline-selection-excess', 
 									options=[{'label': i, 'value': i} for i in timeline_selections],
-									value=timeline_selections[1],
+									value=timeline_selections[0],
 									placeholder='Choose Timeline...',
 									disabled=False,
 									multi=False),
 						html.Div([
 							html.Div('Select X no. deaths/cases:'),
-							dcc.Dropdown(id='count-selection-stringency', 
+							dcc.Dropdown(id='count-selection-excess', 
 										options=[{'label': i, 'value': i} for i in range(1,10000)],
 										value=25,
 										placeholder='Choose X...',
 										disabled=True,
 										multi=False),],
-							id='count-selection-stringency-div',
+							id='count-selection-excess-div',
 							hidden=True)],
 						className='masthead__column_2',
-						id='timeline-selection-stringency-div'
+						id='timeline-selection-excess-div'
 					),
 
 					html.Div([
 						html.Div('Select deaths or cases::'),
-						dcc.Dropdown(id='data-selection-stringency', 
+						dcc.Dropdown(id='data-selection-excess', 
 									options=[{'label': i, 'value': i} for i in data_selections],
 									value=data_selections[0],
 									placeholder='Choose Data...',
-									disabled=False,
+									disabled=True,
 									multi=False),
 
 						],
 						className='masthead__column_3',
-						id='data-selection-stringency-div'
+						id='data-selection-excess-div'
 					),
 									html.Div([
 						html.Div([
 							html.Div('Choose number of days to shift deaths/cases data by:'),
 							dcc.Slider(
-							        id='shift-range-selection-stringency',
+							        id='shift-range-selection-excess',
 							        min=0,
 							        max=20,
 							        step=1,
-							        value=16,
+							        value=0,
 							        marks={
 									        0: '0 Days',
 									        1: '',
@@ -160,16 +166,17 @@ def getStringencyMasthead():
 									    }
 							    ),
 							
-						],className='masthead-slider'),
+						],className='masthead-slider',
+						  hidden=True),
 						html.Div([
 							html.Div([
 							html.Div('Smooth data over x no. days:'),
 							dcc.Slider(
-							        id='smoothing-range-selection-stringency',
+							        id='smoothing-range-selection-excess',
 							        min=1,
 							        max=10,
 							        step=1,
-							        value=5,
+							        value=7,
 							        marks={
 									        1: '1 Day',
 									        2: '',
@@ -190,7 +197,7 @@ def getStringencyMasthead():
 
 
 			], className='l-subgrid'),
-				], id='stringency-masthead-div',
+				], id='excess-masthead-div',
 				   className='masthead l-grid'),
 
 			])
@@ -198,26 +205,26 @@ def getStringencyMasthead():
 
 def getLayout():
 	return 	html.Div([
-				getHeader("stringency"),
+				getHeader("excessdeaths"),
 				getStringencyMasthead(),
 
 
 			html.Div([
-						html.Div(id='stringency-reg1-graph',className='mobility-reg1-graph'),						
-						html.Div(id='stringency-reg2-graph',className='mobility-reg2-graph'),					
-						html.Div(id='stringency-reg3-graph',className='mobility-reg3-graph'),
+						html.Div(id='excess-reg1-graph',className='mobility-reg1-graph'),						
+						html.Div(id='excess-reg2-graph',className='mobility-reg2-graph'),					
+						html.Div(id='excess-reg3-graph',className='mobility-reg3-graph'),
 
 			], className='l-subgrid'),
 			html.Div([
-						html.Div(id='stringency-reg4-graph',className='mobility-reg1-graph'),						
-						html.Div(id='stringency-reg5-graph',className='mobility-reg2-graph'),					
-						html.Div(id='stringency-reg6-graph',className='mobility-reg3-graph'),
+						html.Div(id='excess-reg4-graph',className='mobility-reg1-graph'),						
+						html.Div(id='excess-reg5-graph',className='mobility-reg2-graph'),					
+						html.Div(id='excess-reg6-graph',className='mobility-reg3-graph'),
 
 			], className='l-subgrid'),
 			html.Div([
-						html.Div(id='stringency-reg7-graph',className='mobility-reg1-graph'),						
-						html.Div(id='stringency-reg8-graph',className='mobility-reg2-graph'),					
-						html.Div(id='stringency-reg9-graph',className='mobility-reg3-graph'),
+						html.Div(id='excess-reg7-graph',className='mobility-reg1-graph'),						
+						html.Div(id='excess-reg8-graph',className='mobility-reg2-graph'),					
+						html.Div(id='excess-reg9-graph',className='mobility-reg3-graph'),
 
 			], className='l-subgrid'),
 			html.Div([
@@ -228,9 +235,9 @@ def getLayout():
 					dcc.Link("https://ourworldindata.org/coronavirus-source-data", href="https://ourworldindata.org/coronavirus-source-data"),
 					html.Div("This data has been collected, aggregated, and documented by Diana Beltekian, Daniel Gavrilov, Joe Hasell, Bobbie Macdonald, Edouard Mathieu, Esteban Ortiz-Ospina, Hannah Ritchie, Max Roser."),
 					
-					html.Div("Stringency Index Data Source:" ),
-					dcc.Link("https://www.bsg.ox.ac.uk/research/research-projects/coronavirus-government-response-tracker", href="https://www.bsg.ox.ac.uk/research/research-projects/coronavirus-government-response-tracker"),
-					html.Div("Hale, Thomas, Sam Webster, Anna Petherick, Toby Phillips, and Beatriz Kira (2020). Oxford COVID-19 Government Response Tracker, Blavatnik School of Government. Data use policy: Creative Commons Attribution CC BY standard."),
+					html.Div("Excess Deaths Data Source:" ),
+					dcc.Link("https://github.com/TheEconomist/covid-19-excess-deaths-tracker", href="https://github.com/TheEconomist/covid-19-excess-deaths-tracker"),
+					html.Div("The Economist. This data has been collected, cleaned and analysed by James Tozer and Martín González."),
 				],className='worldwide_data_footer')
 			], className='l-subgrid'),
 		], id='team-stats-page', className='shown-grid l-grid')
@@ -238,8 +245,8 @@ def getLayout():
 
 
 @app.callback(
-	Output('count-selection-stringency', 'disabled'),
-	[Input('timeline-selection-stringency', 'value')])
+	Output('count-selection-excess', 'disabled'),
+	[Input('timeline-selection-excess', 'value')])
 def updateCountSelection(timeline):
 	if timeline == 'Days since X number of deaths/cases':
 		return False
@@ -247,8 +254,8 @@ def updateCountSelection(timeline):
 		return True
 
 @app.callback(
-	Output('count-selection-stringency-div', 'hidden'),
-	[Input('timeline-selection-stringency', 'value')])
+	Output('count-selection-excess-div', 'hidden'),
+	[Input('timeline-selection-excess', 'value')])
 def updateCountSelection(timeline):
 	if timeline == 'Days since X number of deaths/cases':
 		return False
@@ -262,7 +269,8 @@ def getStringencyPlots(locations,
 						smoothing_range,
 						timeline,
 						x_num,
-						location_num):
+						location_num,
+						df_excess):
 	
 				
 	if len(locations)<=location_num:
@@ -285,53 +293,7 @@ def getStringencyPlots(locations,
 		location_key = location.lower().replace(' ','_')
 
 		if timeline == 'Days since X number of deaths/cases':
-			df_total_loc = df_total.fillna(0)
-			df_total_loc['date'] = df_total_loc['date'] - datetime.timedelta(days=shift_days)
-			df_total_loc = df_total_loc.drop(df_total_loc[(df_total_loc[location_key] < x_num)].index)
-			df_total_loc = df_total_loc.reset_index()
-			df_total_loc = df_total_loc.drop([location_key], axis=1)
-
-			df[location_key] = df[location_key].fillna(0).rolling(smoothing_range).mean()
-			df_loc = df[['date', location_key]].copy()
-			df_loc['date'] = df_loc['date'] - datetime.timedelta(days=shift_days)
-
-			df_loc = pd.merge(df_total_loc, df_loc, how='left', on='date')
-
-			country = pycountry.countries.get(name=location).alpha_3
-			stringency_df = getStringencyDataFrame(country)	
-			stringency_df['date'] = pd.to_datetime(stringency_df.date)
-			stringency_df.sort_values(by=['date'])	
-
-			df_loc = pd.merge(df_loc, stringency_df, how='left', on='date')
-
-			data.append(go.Bar( x=df_loc.index ,
-				    y=df_loc[location_key] ,
-				    marker=dict(
-				        color=colour_palette[location_num],
-				    ),
-				    opacity=1.0,
-				    text=location,
-				    name=location + ' ' + data_type,
-				    yaxis='y1',
-				    showlegend=True
-				))
-
-			data.append(go.Scatter( x=df_loc.index ,
-				    y=df_loc['stringency'] ,
-					    mode='lines',
-					    marker=dict(
-					        color='rgb(0,0,0)',
-					    ),
-					    line = dict(
-					    	color='rgb(0,0,0)', 
-					    	dash='dot'),
-				    opacity=1.0,
-				    text=location,
-				    name='Stringency Index',
-				    yaxis='y2',
-				    showlegend=True
-				))
-
+			return None
 		else:
 
 			df[location_key] = df[location_key].fillna(0).rolling(smoothing_range).mean()
@@ -341,35 +303,34 @@ def getStringencyPlots(locations,
 			data.append(go.Bar( x=df_loc['date'] ,
 				    y=df_loc[location_key] ,
 				    marker=dict(
-				        color=colour_palette[location_num],
+				        color=colour_palette[1],
 				    ),
 				    opacity=1.0,
 				    text=location,
-				    name=location + ' ' + data_type,
+				    name=location + ' Covid 19 ' + data_type,
 				    yaxis='y1',
 				    showlegend=True
 				))
 
-			country = pycountry.countries.get(name=location).alpha_3
-			stringency_df = getStringencyDataFrame(country)	
-			stringency_df['date'] = pd.to_datetime(stringency_df.date)
-			stringency_df.sort_values(by=['date'])
+			df_excess['start_datetime'] = df_excess.apply(lambda x: convert_iso_to_datetime(x['start_date']), axis=1)
+			df_excess['end_datetime'] = df_excess.apply(lambda x: convert_iso_to_datetime(x['end_date']), axis=1)
+			
+			df_excess = df_excess.set_index('start_datetime').resample('D').ffill().reset_index()
+			df_excess['excess_deaths'] = df_excess['excess_deaths']/7.0
+			df_excess['excess_deaths'] = df_excess['excess_deaths'].rolling(smoothing_range).mean().dropna()
 
-			data.append(go.Scatter( x=stringency_df['date'] ,
-				    y=stringency_df['stringency'] ,
-					    mode='lines',
-					    marker=dict(
-					        color='rgb(0,0,0)',
-					    ),
-					    line = dict(
-					    	color='rgb(0,0,0)', 
-					    	dash='dot'),
-				    opacity=1.0,
+			data.append(go.Bar( x=df_excess['start_datetime'] ,
+				    y=df_excess['excess_deaths'] ,
+				    marker=dict(
+				        color=colour_palette[2],
+				    ),
+				    opacity=0.5,
 				    text=location,
-				    name='Stringency Index',
-				    yaxis='y2',
+				    name=location + ' Excess ' + data_type,
+				    yaxis='y1',
 				    showlegend=True
-				))
+				))			
+
 
 		figure = {
 				'data': data,
@@ -410,16 +371,7 @@ def getStringencyPlots(locations,
 				                        title = data_type,
 				                        showgrid=False
 				                ),
-				                yaxis2=dict(
-				                			range=[0,100],
-				               				tickfont=dict(
-				                                family='Arial',
-				                                size=14,
-				                                color='#000000'
-				                            ),
-                                   				side='right',
-				                        	title = 'Stringency Index',
-				                        showgrid=False),
+
 
 				                height=400,
 				                autosize=True,
@@ -438,146 +390,182 @@ def getStringencyPlots(locations,
 
 
 @app.callback(
-	Output('stringency-reg1-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg1-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num):
+	url = "https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/output-data/excess-deaths/britain_excess_deaths.csv"
+	df = pd.read_csv(url, error_bad_lines=False)
+	df = df.fillna(0)
+	df = df[df['country'] == 'Britain']
+	df = df[df['region'] == 'Britain']
 	return getStringencyPlots(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num,
-							0)
+							0,
+							df)
 
 @app.callback(
-	Output('stringency-reg2-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg2-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
+def updateStringencyReportsRegression(locations,
+							data_type,
+							shift_days,
+							smoothing_range,
+							timeline,
+							x_num):	
+	url = "https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/output-data/excess-deaths/italy_excess_deaths.csv"
+	df = pd.read_csv(url, error_bad_lines=False)
+	df = df.fillna(0)
+	df = df[df['country'] == 'Italy']
+	df = df[df['region'] == 'Italy']
+	return getStringencyPlots(locations,
+							data_type,
+							shift_days,
+							smoothing_range,
+							timeline,
+							x_num,
+							1,
+							df)
+
+
+@app.callback(
+	Output('excess-reg3-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num):
+	url = "https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/output-data/excess-deaths/france_excess_deaths.csv"
+	df = pd.read_csv(url, error_bad_lines=False)
+	df = df.fillna(0)
+	df = df[df['country'] == 'France']
+	df = df[df['region'] == 'France']
 	return getStringencyPlots(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num,
-							1)
-
+							2,
+							df)
 
 @app.callback(
-	Output('stringency-reg3-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg4-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num):
+	url = "https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/output-data/excess-deaths/germany_excess_deaths.csv"
+	df = pd.read_csv(url, error_bad_lines=False)
+	df = df.fillna(0)
+	df = df[df['country'] == 'Germany']
+	df = df[df['region'] == 'Germany']
 	return getStringencyPlots(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num,
-							2)
+							3,
+							df)
 
 @app.callback(
-	Output('stringency-reg4-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg5-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num):
+	url = "https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/output-data/excess-deaths/sweden_excess_deaths.csv"
+	df = pd.read_csv(url, error_bad_lines=False)
+	df = df.fillna(0)
+	df = df[df['country'] == 'Sweden']
+	df = df[df['region'] == 'Sweden']
 	return getStringencyPlots(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num,
-							3)
+							4,
+							df)
 
 @app.callback(
-	Output('stringency-reg5-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg6-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num):
+	url = "https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/output-data/excess-deaths/spain_excess_deaths.csv"
+	df = pd.read_csv(url, error_bad_lines=False)
+	df = df.fillna(0)
+	df = df[df['country'] == 'Spain']
+	df = df[df['region'] == 'Spain']
 	return getStringencyPlots(locations,
 							data_type,
 							shift_days,
 							smoothing_range,
 							timeline,
 							x_num,
-							4)
+							5,
+							df)
 
-@app.callback(
-	Output('stringency-reg6-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
-def updateStringencyReportsRegression(locations,
-							data_type,
-							shift_days,
-							smoothing_range,
-							timeline,
-							x_num):
-	return getStringencyPlots(locations,
-							data_type,
-							shift_days,
-							smoothing_range,
-							timeline,
-							x_num,
-							5)
-
-@app.callback(
-	Output('stringency-reg7-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+'''@app.callback(
+	Output('excess-reg7-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
@@ -594,13 +582,13 @@ def updateStringencyReportsRegression(locations,
 
 
 @app.callback(
-	Output('stringency-reg8-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg8-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
@@ -617,13 +605,13 @@ def updateStringencyReportsRegression(locations,
 
 
 @app.callback(
-	Output('stringency-reg9-graph', 'children'),
-	[Input('location-selection-stringency', 'value'),
-	Input('data-selection-stringency', 'value'),
-	Input('shift-range-selection-stringency', 'value'),
-	Input('smoothing-range-selection-stringency', 'value'),
-	Input('timeline-selection-stringency', 'value'),
-	Input('count-selection-stringency', 'value')])
+	Output('excess-reg9-graph', 'children'),
+	[Input('location-selection-excess', 'value'),
+	Input('data-selection-excess', 'value'),
+	Input('shift-range-selection-excess', 'value'),
+	Input('smoothing-range-selection-excess', 'value'),
+	Input('timeline-selection-excess', 'value'),
+	Input('count-selection-excess', 'value')])
 def updateStringencyReportsRegression(locations,
 							data_type,
 							shift_days,
@@ -636,7 +624,7 @@ def updateStringencyReportsRegression(locations,
 							smoothing_range,
 							timeline,
 							x_num,
-							8)
+							8)'''
 
 
 
