@@ -312,7 +312,7 @@ def getStringencyPlots(locations,
 				    opacity=1.0,
 				    text=location,
 				    name=location + ' ' + data_type,
-				    yaxis='y1',
+				    yaxis='y2',
 				    showlegend=True
 				))
 
@@ -328,7 +328,7 @@ def getStringencyPlots(locations,
 				    opacity=1.0,
 				    text=location,
 				    name='Stringency Index',
-				    yaxis='y2',
+				    yaxis='y1',
 				    showlegend=True
 				))
 
@@ -346,7 +346,7 @@ def getStringencyPlots(locations,
 				    opacity=1.0,
 				    text=location,
 				    name=location + ' ' + data_type,
-				    yaxis='y1',
+				    yaxis='y2',
 				    showlegend=True
 				))
 
@@ -367,7 +367,7 @@ def getStringencyPlots(locations,
 				    opacity=1.0,
 				    text=location,
 				    name='Stringency Index',
-				    yaxis='y2',
+				    yaxis='y1',
 				    showlegend=True
 				))
 
@@ -400,17 +400,18 @@ def getStringencyPlots(locations,
 				                                color='#000000'
 				                            ),
 				                ),
-				                yaxis=dict(
+				                yaxis2=dict(
 				                        #range=[0,25],
 				                        tickfont=dict(
 				                                family='Arial',
 				                                size=14,
 				                                color='#000000'
 				                            ),
+				                        side='left',
 				                        title = data_type,
 				                        showgrid=False
 				                ),
-				                yaxis2=dict(
+				                yaxis=dict(
 				                			range=[0,100],
 				               				tickfont=dict(
 				                                family='Arial',

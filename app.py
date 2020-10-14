@@ -95,7 +95,25 @@ def getStringencyDataFrame(country='GBR'):
     df['date'] = pd.to_datetime(df.date)
     df = df.sort_values(by=['date'])
 
-    return df    
+    return df   
+
+#@cache.memoize(timeout=timeout)
+def getUSDeathData():
+    url = 'https://raw.githubusercontent.com/TheEconomist/covid-19-excess-deaths-tracker/master/source-data/united-states/united_states_total_source_latest.csv'
+    df = pd.read_csv(url, error_bad_lines=False)
+    return df 
+
+
+def getUSWeekWindows():
+    url = 'https://github.com/TheEconomist/covid-19-excess-deaths-tracker/blob/master/source-data/united-states/united_states_week_windows.csv'
+    df = pd.read_csv(url, error_bad_lines=False)
+    return df 
+
+def getUSStateCodes():
+    url = 'https://github.com/TheEconomist/covid-19-excess-deaths-tracker/blob/master/source-data/united-states/united_states_states.csv'
+    df = pd.read_csv(url, error_bad_lines=False)
+    return df 
+
 
 
 app.index_string = '''
