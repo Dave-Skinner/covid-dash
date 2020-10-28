@@ -19,7 +19,6 @@ from google.oauth2 import service_account
 local_version = False
 
 
-
 json_str = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
 gcp_project = os.environ.get('GCP_PROJECT') 
 
