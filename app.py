@@ -13,10 +13,24 @@ from flask_caching import Cache
 import requests
 import datetime
 
+from google.cloud import bigquery
+from google.oauth2 import service_account
+
 local_version = False
 
 
+
+json_str = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+gcp_project = os.environ.get('GCP_PROJECT') 
+
+json_data = json.loads(json_str)
+json_data['private_key'] = json_data['private_key'].replace('\\n', '\n')
+
+gbq_credentials = service_account.Credentials.from_service_account_info(json_data)
+
+
 if local_version:
+    #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'Covid Mobility-369735b5a910.json'
     app = dash.Dash('Covid Dash')
     app.config.suppress_callback_exceptions = True
 else:
@@ -35,7 +49,7 @@ timeout = 360
 
 @cache.memoize(timeout=timeout)
 def getCovidJSON():
-    dataset = dw.load_dataset('markmarkoh/coronavirus-data',force_update=True)
+    dataset = dw.load_dataset('markmarkoh/coronavirus-data',auto_update=True)
 
     dfs = dataset.dataframes
 
@@ -71,8 +85,22 @@ def getCovidDataframes():
     return dfs
 
 def getGoogleMobilityReports():
-    csv_file = 'Global_Mobility_Report.csv'
-    return pd.read_csv(csv_file)
+    csv_file = 'https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv'
+    df = pd.read_csv(csv_file)
+    print (df.info())
+    return df
+
+def getGoogleMobilityReportsFromCountry(country):
+    sql = """SELECT * 
+             FROM   `bigquery-public-data.covid19_google_mobility_eu.mobility_report` mobility 
+             WHERE country_region = "%s" 
+             AND sub_region_1 IS NULL 
+    """ % country
+
+    # Run a Standard SQL query using the environment's default project
+    df = pd.read_gbq(sql, dialect='standard',credentials=gbq_credentials)
+
+    return df
 
 @cache.memoize(timeout=timeout)
 def getStringencyData():

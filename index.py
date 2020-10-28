@@ -6,7 +6,7 @@ import dash_html_components as html
 import flask
 
 from app import app
-import app_worldwide, app_stringency, app_sir, app_excess#, app_seir, app_excess_us#,app_mobility#, app_ons, app_density, app_mobility, app_compliance
+import app_worldwide, app_sir, app_excess,app_mobility#, app_stringency, app_seir, app_excess_us##, app_ons, app_density, app_mobility, app_compliance
 #import app_mobility_new as app_mobility
 
 
@@ -26,8 +26,8 @@ def display_page(pathname):
         return app_worldwide.getLayout()
     if pathname == "/worldwide": 
         return app_worldwide.getLayout()
-    elif pathname == "/stringency": 
-        return app_stringency.getLayout()
+    #elif pathname == "/stringency": 
+    #    return app_stringency.getLayout()
 
     #elif pathname == "/seirmodel": 
     #    return app_seir.getLayout() 
@@ -36,7 +36,9 @@ def display_page(pathname):
         return app_sir.getLayout() 
 
     elif pathname == "/excessdeaths": 
-        return app_excess.getLayout()    
+        return app_excess.getLayout() 
+    elif pathname == "/mobility": 
+        return app_mobility.getLayout()   
            
     '''elif pathname == "/excessdeaths_us": 
         return app_excess_us.getLayout()              
@@ -48,8 +50,7 @@ def display_page(pathname):
     elif pathname == "/density": 
         layout = app_density.getLayout()
         return layout'''
-    ''' elif pathname == "/mobility": 
-        return app_mobility.getLayout()
+    ''' 
     elif pathname == "/compliance": 
         return app_compliance.getLayout() ''' 
 

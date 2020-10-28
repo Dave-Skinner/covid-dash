@@ -156,12 +156,12 @@ def getWorldwideMasthead():
 					html.Div([
 						html.Div('Choose Mortality Rate:'),
 						dcc.Dropdown(id='mortality-rate-selection-sir', 
-									options=[{'label': str(i/2)+'%', 'value': i/200.0} for i in range(1,100)],
-										value=0.01),
+									options=[{'label': str(i/10)+'%', 'value': i/1000.0} for i in range(1,100)],
+										value=0.005),
 						html.Div('No. of days a person remains infectious:'),
 						dcc.Dropdown(id='infectious-days-selection-sir', 
 									options=[{'label': str(i)+' Days', 'value': i} for i in range(2,14)],
-										value=5),
+										value=6),
 						],
 						className='masthead__column_3',
 						id='data-selection-sir-div'
@@ -172,10 +172,10 @@ def getWorldwideMasthead():
 							dcc.Slider(
 							        id='prediction-range-selection-sir',
 							        min=0,
-							        max=40,
+							        max=20,
 							        step=1,
 							        value=10,
-							        marks=getDaysMarks(40)
+							        marks=getDaysMarks(20)
 							    ),
 							
 						],className='masthead-slider-1'),
@@ -184,26 +184,10 @@ def getWorldwideMasthead():
 							dcc.Slider(
 							        id='smoothing-range-selection-sir',
 							        min=1,
-							        max=10,
+							        max=15,
 							        step=1,
-							        value=3,
-							        marks={
-									        1: '1 Day',
-									        2: '',
-									        3: '',
-									        4: '',
-									        5: '5 Days',
-									        6: '',
-									        7: '',
-									        8: '',
-									        9: '',
-									        10: '10 Days',
-									        11: '',
-									        12: '',
-									        13: '',
-									        14: '',
-									        15: '15 Days'
-									    }
+							        value=11,
+							        marks=getDaysMarks(20)
 							    ),
 							
 						],className='masthead-slider-2'),
@@ -212,26 +196,10 @@ def getWorldwideMasthead():
 							dcc.Slider(
 							        id='duration-selection-sir',
 							        min=1,
-							        max=15,
+							        max=20,
 							        step=1,
-							        value=11,
-							        marks={
-									        1: '1 Day',
-									        2: '',
-									        3: '',
-									        4: '',
-									        5: '5 Days',
-									        6: '',
-									        7: '',
-									        8: '',
-									        9: '',
-									        10: '10 Days',
-									        11: '',
-									        12: '',
-									        13: '',
-									        14: '',
-									        15: '15 Days'
-									    }
+							        value=14,
+							        marks=getDaysMarks(20)
 							    ),
 							
 						],className='masthead-slider-3'),
